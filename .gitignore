@@ -1,2 +1,6 @@
-//architecture.md
-//requirements.md
+node_modules/
+.env
+.dev.vars
+.wrangler/
+.DS_Store
+*.log

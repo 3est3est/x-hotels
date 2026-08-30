@@ -7,7 +7,8 @@
     "dev": "bun run --watch src/dev.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/db/migrate.ts",
-    "db:seed": "bun run src/db/seed.ts"
+    "db:seed": "bun run src/db/seed.ts",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "better-auth": "^1.7.2",
@@ -20,6 +21,7 @@
     "@electric-sql/pglite": "^0.5.8",
     "@types/bun": "^1.4.0",
     "drizzle-kit": "^0.31.10",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "wrangler": "^4.127.1"
   }
 }
