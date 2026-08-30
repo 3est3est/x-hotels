@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1788116860126,
+      "tag": "0000_cynical_strong_guy",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788117055631,
+      "tag": "0001_talented_nicolaos",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788117429307,
+      "tag": "0002_misty_azazel",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788117576831,
+      "tag": "0003_smiling_living_tribunal",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788117889697,
+      "tag": "0004_shallow_magdalene",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788118186421,
+      "tag": "0005_dark_earthquake",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788119032036,
+      "tag": "0006_same_gambit",
+      "breakpoints": true
+    }
+  ]
+}

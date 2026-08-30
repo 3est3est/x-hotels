@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "id_document_public_id" text;

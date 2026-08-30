@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "x-hotels-backend",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  "nodejs_compat": true,
+  "vars": {
+    "BETTER_AUTH_URL": "http://localhost:8787"
+  }
+}
