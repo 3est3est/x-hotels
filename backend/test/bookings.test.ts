@@ -74,10 +74,12 @@ describe('booking lifecycle', () => {
     const fixture = await seedCatalog(db)
     const guest = await verifiedUser(app, 'invalid@example.com')
 
-    const badDate = await postBooking(app, guest, validBody(fixture, { checkInDate: '01-12-2026' }))
+    const badFormat = await postBooking(app, guest, validBody(fixture, { checkInDate: '01-12-2026' }))
+    const impossibleDate = await postBooking(app, guest, validBody(fixture, { checkInDate: '2026-99-99' }))
     const zeroNights = await postBooking(app, guest, validBody(fixture, { nights: 0 }))
 
-    expect(badDate.status).toBe(422)
+    expect(badFormat.status).toBe(422)
+    expect(impossibleDate.status).toBe(400)
     expect(zeroNights.status).toBe(422)
   })
 

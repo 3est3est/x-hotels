@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { createTestApp, verifiedUser, promoteToManagement, signIn, type TestUser } from './helpers'
+import { createTestApp, verifiedUser, managementSession, type TestUser } from './helpers'
 import { bookings as bookingsTable, hotels, regions, roomTypes } from '../src/db/schema'
 import type { App } from '../src/app'
 
@@ -19,12 +19,10 @@ describe('management statistics', () => {
 
   it('returns zeros for an empty system', async () => {
     const { db, app } = await createTestApp()
-    const staff = await verifiedUser(app, 'boss@example.com')
-    await promoteToManagement(db, staff.userId)
-    const cookie = await signIn(app, staff.email, staff.password)
+    const manager = await managementSession(app, db)
 
     const res = await app.handle(
-      new Request('http://localhost/admin/stats', { headers: { cookie } }),
+      new Request('http://localhost/admin/stats', { headers: { cookie: manager.cookie } }),
     )
     const body = await res.json()
 
@@ -89,12 +87,10 @@ describe('management statistics', () => {
     await insertBooking(guests[2], bangkok.id, suite.id, 'CANCELLED')
     await insertBooking(guests[3], telAviv.id, tlvDeluxe.id, 'CONFIRMED')
 
-    const staff = await verifiedUser(app, 'stats@example.com')
-    await promoteToManagement(db, staff.userId)
-    const cookie = await signIn(app, staff.email, staff.password)
+    const manager = await managementSession(app, db)
 
     const res = await app.handle(
-      new Request('http://localhost/admin/stats', { headers: { cookie } }),
+      new Request('http://localhost/admin/stats', { headers: { cookie: manager.cookie } }),
     )
     const body = await res.json()
 

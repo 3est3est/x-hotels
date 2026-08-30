@@ -50,6 +50,13 @@
       "when": 1788119032036,
       "tag": "0006_same_gambit",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788140400000,
+      "tag": "0007_sunny_review_message",
+      "breakpoints": true
     }
   ]
 }

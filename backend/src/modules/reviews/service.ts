@@ -7,7 +7,7 @@ export async function createReview(
   db: Db,
   userId: string,
   hotelId: number,
-  body: { rating: number; comment?: string },
+  body: { rating: number; message?: string },
 ) {
   const [hotel] = await db.select().from(hotels).where(eq(hotels.id, hotelId)).limit(1)
   if (!hotel) return status(404, { error: 'Hotel not found' })
@@ -36,7 +36,7 @@ export async function createReview(
 
   const [review] = await db
     .insert(reviews)
-    .values({ userId, hotelId, rating: body.rating, comment: body.comment })
+    .values({ userId, hotelId, rating: body.rating, message: body.message })
     .returning()
 
   return status(201, review)
@@ -46,7 +46,7 @@ export async function updateReview(
   db: Db,
   userId: string,
   id: number,
-  body: { rating?: number; comment?: string },
+  body: { rating?: number; message?: string | null },
 ) {
   const [review] = await db.select().from(reviews).where(eq(reviews.id, id)).limit(1)
   if (!review || review.userId !== userId) {
@@ -57,7 +57,7 @@ export async function updateReview(
     .update(reviews)
     .set({
       rating: body.rating ?? review.rating,
-      comment: body.comment ?? review.comment,
+      message: body.message === undefined ? review.message : body.message,
       updatedAt: new Date(),
     })
     .where(eq(reviews.id, review.id))

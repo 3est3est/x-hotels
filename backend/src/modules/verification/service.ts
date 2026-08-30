@@ -16,7 +16,9 @@ export async function verifyIdentity(
   publicId: string,
 ) {
   const asset = await cloudinary.findIdentityAsset(publicId)
-  if (!asset) return status(422, { error: 'Identity document not found' })
+  if (!asset || !publicId.startsWith(`identity/${userId}/`)) {
+    return status(422, { error: 'Identity document not found' })
+  }
 
   await db
     .update(usersTable)

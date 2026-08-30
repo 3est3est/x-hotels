@@ -44,7 +44,7 @@ export async function getHotelDetail(db: Db, id: number) {
     .select({
       id: reviews.id,
       rating: reviews.rating,
-      comment: reviews.comment,
+      message: reviews.message,
       createdAt: reviews.createdAt,
     })
     .from(reviews)

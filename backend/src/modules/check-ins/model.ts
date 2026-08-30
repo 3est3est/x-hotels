@@ -1,3 +1,3 @@
-import { t } from 'elysia'
+import { idParams } from '../params'
 
-export const bookingIdParams = t.Object({ id: t.Integer({ minimum: 1 }) })
+export const bookingIdParams = idParams

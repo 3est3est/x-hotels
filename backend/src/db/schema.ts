@@ -136,7 +136,7 @@ export const reviews = pgTable(
       .notNull()
       .references(() => hotels.id),
     rating: integer('rating').notNull(),
-    comment: text('comment'),
+    message: text('message'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },

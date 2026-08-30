@@ -1,4 +1,4 @@
-import { count, desc, eq } from 'drizzle-orm'
+import { count, desc, eq, sql } from 'drizzle-orm'
 import type { Db } from '../../db/types'
 import { bookings as bookingsTable, hotels, regions, roomTypes } from '../../db/schema'
 
@@ -6,7 +6,8 @@ export async function getStats(db: Db) {
   const [totals] = await db
     .select({
       totalBookings: count(),
-      actualCheckIns: count(bookingsTable.checkedInAt),
+      actualCheckIns:
+        sql<number>`count(*) filter (where ${bookingsTable.status} = 'CHECKED_IN')`.mapWith(Number),
     })
     .from(bookingsTable)
 

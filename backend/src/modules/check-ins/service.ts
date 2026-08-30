@@ -1,4 +1,3 @@
-import { Elysia } from 'elysia'
 import { and, eq } from 'drizzle-orm'
 import { status } from 'elysia'
 import type { Db } from '../../db/types'

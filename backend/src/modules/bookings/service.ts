@@ -9,6 +9,11 @@ function checkOutDate(checkInDate: string, nights: number): string {
   return date.toISOString().slice(0, 10)
 }
 
+function isCalendarDate(value: string): boolean {
+  const parsed = new Date(`${value}T00:00:00Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
+}
+
 export async function createBooking(
   db: Db,
   userId: string,
@@ -27,6 +32,9 @@ export async function createBooking(
     .limit(1)
   if (!room || room.hotelId !== body.hotelId) {
     return status(400, { error: 'Room type does not belong to the hotel' })
+  }
+  if (!isCalendarDate(body.checkInDate)) {
+    return status(400, { error: 'Invalid check-in date' })
   }
   if (body.numGuests > room.capacity) {
     return status(400, { error: `Room type capacity is ${room.capacity}` })

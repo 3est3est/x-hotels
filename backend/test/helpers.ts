@@ -2,6 +2,7 @@ import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 import { migrate } from 'drizzle-orm/pglite/migrator'
 import { eq } from 'drizzle-orm'
+import { expect } from 'bun:test'
 import { join } from 'node:path'
 import * as schema from '../src/db/schema'
 import { hotels, regions, roomTypes, user } from '../src/db/schema'
@@ -117,4 +118,33 @@ export async function seedCatalog(db: Db, capacity = 2) {
     .values({ hotelId: hotel.id, name: 'Deluxe', capacity, description: '' })
     .returning()
   return { regionId: region.id, hotelId: hotel.id, roomTypeId: roomType.id, capacity }
+}
+
+export async function managementSession(app: App, db: Db): Promise<TestUser> {
+  const manager = await verifiedUser(app, 'manager@example.com')
+  await promoteToManagement(db, manager.userId)
+  const cookie = await signIn(app, manager.email, manager.password)
+  return { ...manager, cookie }
+}
+
+export async function createBooking(
+  app: App,
+  guest: TestUser,
+  fixture: { hotelId: number; roomTypeId: number },
+) {
+  const res = await app.handle(
+    new Request('http://localhost/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', cookie: guest.cookie },
+      body: JSON.stringify({
+        hotelId: fixture.hotelId,
+        roomTypeId: fixture.roomTypeId,
+        numGuests: 2,
+        checkInDate: '2026-12-01',
+        nights: 3,
+      }),
+    }),
+  )
+  expect(res.status).toBe(201)
+  return (await res.json()) as { id: number }
 }
