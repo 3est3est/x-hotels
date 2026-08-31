@@ -1,0 +1,25 @@
+name: backend
+
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["backend/**", ".github/workflows/backend.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        working-directory: backend
+      - name: Run tests
+        run: bun test
+        working-directory: backend
+      - name: Typecheck
+        run: bun run typecheck
+        working-directory: backend

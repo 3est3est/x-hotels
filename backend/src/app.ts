@@ -14,6 +14,7 @@ export type App = AnyElysia
 
 export interface AppOptions {
   adapter?: any
+  precompile?: boolean
 }
 
 export function createApp(
@@ -34,6 +35,9 @@ export function createApp(
 
   return new Elysia(options as ElysiaConfig<any>)
     .get('/health', () => ({ ok: true }))
+    .onError(({ error }) => {
+      console.error(error)
+    })
     .use(authPlugin({ auth }))
     .use(verification({ db, cloudinary, auth }))
     .use(catalog({ db }))

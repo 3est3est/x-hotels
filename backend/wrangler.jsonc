@@ -3,8 +3,14 @@
   "name": "x-hotels-backend",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
-  "nodejs_compat": true,
+  "compatibility_flags": ["nodejs_compat", "allow_eval_during_startup"],
   "vars": {
-    "BETTER_AUTH_URL": "http://localhost:8787"
-  }
+    "BETTER_AUTH_URL": "https://x-hotels-backend.kanompang450.workers.dev"
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "2695978c262f4fd2807431ccd368b042"
+    }
+  ]
 }

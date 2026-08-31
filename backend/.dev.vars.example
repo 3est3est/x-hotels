@@ -1,5 +1,15 @@
-DATABASE_URL=postgres://postgres.xxxxxxxxxxxx:PASSWORD@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
-BETTER_AUTH_SECRET=change-me
+# Local dev (wrangler dev) secrets — copy to .dev.vars and fill in.
+#
+# DATABASE_URL is NOT needed here: the Worker reads its DB connection from the
+# Hyperdrive binding (see wrangler.jsonc). For local dev, wrangler connects
+# directly to your database using:
+#   CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=postgres://...
+#
+# Connection strings (from Supabase dashboard → Connect):
+# - Migrations/seed (backend/.env DATABASE_URL): session pooler, port 5432
+# - Runtime (Hyperdrive origin): transaction pooler, port 6543
+BETTER_AUTH_SECRET=change-me-use-openssl-rand-base64-32
+BETTER_AUTH_URL=http://localhost:8787
 CLOUDINARY_CLOUD_NAME=your-cloud
 CLOUDINARY_API_KEY=your-key
 CLOUDINARY_API_SECRET=your-secret

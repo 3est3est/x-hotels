@@ -86,6 +86,8 @@ if (isMain) {
     throw new Error('DATABASE_URL is required (put it in .env)')
   }
   const { createDb } = await import('./driver')
-  const counts = await seedDemoData(createDb(url))
+  const db = createDb(url)
+  const counts = await seedDemoData(db)
   console.log(`seeded ${counts.regions} regions, ${counts.hotels} hotels, ${counts.roomTypes} room types`)
+  await db.$client.end()
 }
