@@ -6,3 +6,8 @@ node_modules/
 *.log
 current-task.md
 .kilo/plans/
+
+requirements.txt
+CONTEXT.md
+architecture.md
+.scratch/
