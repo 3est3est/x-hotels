@@ -34,6 +34,7 @@ export function createApp(
   const auth = createAuth({ db, secret: authSecret, url: authUrl })
 
   return new Elysia(options as ElysiaConfig<any>)
+    .get('/', () => 'hello elysia')
     .get('/health', () => ({ ok: true }))
     .onError(({ error }) => {
       console.error(error)
