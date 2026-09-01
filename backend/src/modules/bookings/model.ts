@@ -1,4 +1,5 @@
 import { t } from 'elysia'
+import type { Static } from '@sinclair/typebox'
 import { idParams } from '../params'
 import { errorResponse } from '../errors'
 
@@ -41,6 +42,8 @@ export const bookingListRow = t.Object({
   createdAt: t.Date(),
   checkOutDate: t.String(),
 })
+
+export type BookingListRow = Static<typeof bookingListRow>
 
 export const createBookingBody = t.Object({
   hotelId: t.Integer({ minimum: 1 }),

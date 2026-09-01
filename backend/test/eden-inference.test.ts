@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { edenTreaty } from '@elysiajs/eden/treaty'
 import { createApp, type App } from '../src/app'
 import { stubCloudinary } from './helpers'
+import type { BookingListRow } from '../src/modules/bookings/model'
 
 // Compile-time proof that the exported App type works with Eden treaty:
 // route paths, request bodies, and response types must infer from `App`.
@@ -33,24 +34,24 @@ describe('Eden treaty inference', () => {
     }
 
     // Compile-time-only assertions on business routes (never executed).
+    // These verify Eden infers request bodies, path params, query, and response shapes
+    // from the exported App type. If the type is widened (e.g. back to AnyElysia)
+    // or response schemas are removed, typecheck here will fail.
     if (false) {
       const regions = await api.regions.get()
       const firstName: string | undefined = (regions.data ?? [])[0]?.name
       void firstName
 
       const bookings = await api.bookings.get({ $headers: { cookie: 'x=1' }, $query: {} })
-      const list = bookings.data as Array<{
-        checkInDate: string
-        status: 'CONFIRMED' | 'CANCELLED' | 'CHECKED_IN'
-      }>
-      if (list && list[0]) {
-        const checkInDate: string = list[0].checkInDate
-        const status: 'CONFIRMED' | 'CANCELLED' | 'CHECKED_IN' = list[0].status
-        void checkInDate
-        void status
-      }
+      // Eden leaves `data` as `unknown` for status-keyed responses on the full App type,
+      // so cast to the schema-derived row type (single source of truth). Field types below
+      // are then checked against BookingListRow, so a schema change here fails typecheck.
+      const list = bookings.data as BookingListRow[] | null
+      const checkInDate: string | undefined = list?.[0]?.checkInDate
+      const bookingStatus: BookingListRow['status'] | undefined = list?.[0]?.status
+      void checkInDate
+      void bookingStatus
 
-      // Body is fully typed — wrong shape must fail typecheck.
       await api.bookings.post(
         {
           hotelId: 1,
