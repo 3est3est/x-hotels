@@ -3,9 +3,10 @@ import { env } from 'cloudflare:workers'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { createApp, type App, type Db } from './app'
+import { createApp, type Db } from './app'
 import * as schema from './db/schema'
 import { createCloudinary } from './services/cloudinary'
+import { parseCorsOrigins } from './env'
 
 const requestDb = new AsyncLocalStorage<Db>()
 
@@ -21,7 +22,7 @@ const lazyDb = new Proxy({} as Db, {
   },
 })
 
-const app: App = createApp(
+const app = createApp(
   {
     db: lazyDb,
     cloudinary: createCloudinary({
@@ -31,6 +32,7 @@ const app: App = createApp(
     }),
     authSecret: env.BETTER_AUTH_SECRET,
     authUrl: env.BETTER_AUTH_URL,
+    corsOrigins: parseCorsOrigins(env.CORS_ORIGINS as string | undefined),
   },
   { adapter: CloudflareAdapter, precompile: true },
 ).compile()

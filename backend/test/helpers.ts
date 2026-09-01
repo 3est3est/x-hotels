@@ -4,9 +4,13 @@ import { migrate } from 'drizzle-orm/pglite/migrator'
 import { eq } from 'drizzle-orm'
 import { expect } from 'bun:test'
 import { join } from 'node:path'
+import { openapi } from '@elysiajs/openapi'
+import { type AnyElysia } from 'elysia'
 import * as schema from '../src/db/schema'
 import { hotels, regions, roomTypes, user } from '../src/db/schema'
-import { createApp, type App, type Db } from '../src/app'
+import { createApp, type Db } from '../src/app'
+
+type App = Awaited<ReturnType<typeof createTestApp>>['app']
 import type { CloudinaryService } from '../src/services/cloudinary'
 
 export const stubCloudinary: CloudinaryService = {
@@ -26,15 +30,17 @@ export async function createTestDb(): Promise<Db> {
   return db
 }
 
-export async function createTestApp() {
+export async function createTestApp(options?: { corsOrigins?: string[]; openapi?: boolean }) {
   const db = await createTestDb()
   const app = createApp({
     db,
     cloudinary: stubCloudinary,
     authSecret: 'test-secret',
     authUrl: 'http://localhost:3000',
+    corsOrigins: options?.corsOrigins ?? [],
   })
-  return { db, app }
+  const openapiApp: AnyElysia = app
+  return { db, app: options?.openapi ? openapiApp.use(openapi()) : app }
 }
 
 export interface TestUser {

@@ -6,7 +6,19 @@ import type { Db } from '../db/types'
 
 export type Auth = ReturnType<typeof createAuth>
 
-export function createAuth({ db, secret, url }: { db: Db; secret: string; url: string }) {
+export type SessionUser = Auth['$Infer']['Session']['user']
+
+export function createAuth({
+  db,
+  secret,
+  url,
+  corsOrigins = [],
+}: {
+  db: Db
+  secret: string
+  url: string
+  corsOrigins?: string[]
+}) {
   return betterAuth({
     database: drizzleAdapter(db, {
       provider: 'pg',
@@ -20,7 +32,10 @@ export function createAuth({ db, secret, url }: { db: Db; secret: string; url: s
     secret,
     baseURL: url,
     basePath: '/api/auth',
-    trustedOrigins: [url],
+    trustedOrigins: [url, ...corsOrigins],
+    advanced: {
+      defaultCookieAttributes: { sameSite: 'none', secure: true },
+    },
     emailAndPassword: { enabled: true },
     user: {
       additionalFields: {
@@ -35,25 +50,25 @@ export function createAuth({ db, secret, url }: { db: Db; secret: string; url: s
 }
 
 export function authPlugin({ auth }: { auth: Auth }) {
-  const sessionMacro = (deny?: (user: Record<string, any>) => string | null) => ({
-    resolve: async (ctx: { status: any; request: Request }) => {
-      const result = await auth.api.getSession({ headers: ctx.request.headers })
-      if (!result) return ctx.status(401, { error: 'Authentication required' })
-      const denial = deny?.(result.user as unknown as Record<string, any>)
-      if (denial) return ctx.status(403, { error: denial })
-      return { user: result.user, session: result.session }
-    },
-  })
+  type SessionLevel = true | 'verified' | 'management'
 
   return new Elysia({ name: 'better-auth' })
     .mount(auth.handler)
     .macro({
-      session: sessionMacro(),
-      verified: sessionMacro((user) =>
-        user.verifiedAt ? null : 'Identity verification required',
-      ),
-      management: sessionMacro((user) =>
-        user.role === 'management' ? null : 'Management role required',
-      ),
+      session: (options?: SessionLevel) => ({
+        resolve: async (ctx: { status: any; request: Request }) => {
+          const result = await auth.api.getSession({ headers: ctx.request.headers })
+          if (!result) return ctx.status(401, { error: 'Authentication required' })
+          const level = options ?? true
+          const denial =
+            level === 'management' && result.user.role !== 'management'
+              ? 'Management role required'
+              : level === 'verified' && !result.user.verifiedAt
+                ? 'Identity verification required'
+                : null
+          if (denial) return ctx.status(403, { error: denial })
+          return { user: result.user, session: result.session }
+        },
+      }),
     })
 }

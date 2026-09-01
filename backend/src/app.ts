@@ -1,4 +1,5 @@
-import { Elysia, type AnyElysia, type ElysiaConfig } from 'elysia'
+import { Elysia, type ElysiaConfig } from 'elysia'
+import { cors } from '@elysiajs/cors'
 import { catalog } from './modules/catalog'
 import { authPlugin, createAuth } from './modules/auth'
 import { verification } from './modules/verification'
@@ -10,7 +11,7 @@ import type { CloudinaryService } from './services/cloudinary'
 import type { Db } from './db/types'
 
 export type { Db } from './db/types'
-export type App = AnyElysia
+export type App = ReturnType<typeof createApp>
 
 export interface AppOptions {
   adapter?: any
@@ -23,17 +24,20 @@ export function createApp(
     cloudinary,
     authSecret,
     authUrl,
+    corsOrigins = [],
   }: {
     db: Db
     cloudinary: CloudinaryService
     authSecret: string
     authUrl: string
+    corsOrigins?: string[]
   },
   options?: AppOptions,
-): App {
-  const auth = createAuth({ db, secret: authSecret, url: authUrl })
+) {
+  const auth = createAuth({ db, secret: authSecret, url: authUrl, corsOrigins })
 
-  return new Elysia(options as ElysiaConfig<any>)
+  return new Elysia(options as ElysiaConfig<''>)
+    .use(cors({ origin: corsOrigins, credentials: true }))
     .get('/', () => 'hello elysia')
     .get('/health', () => ({ ok: true }))
     .onError(({ error }) => {

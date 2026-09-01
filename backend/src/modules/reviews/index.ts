@@ -2,7 +2,7 @@ import { Elysia } from 'elysia'
 import type { Db } from '../../db/types'
 import { authPlugin, type Auth } from '../auth'
 import * as service from './service'
-import { createReviewBody, hotelIdParams, reviewIdParams, updateReviewBody } from './model'
+import { createReviewBody, createReviewResponse, hotelIdParams, reviewIdParams, updateReviewBody, updateReviewResponse } from './model'
 
 export function reviewsModule({ db, auth }: { db: Db; auth: Auth }) {
   return new Elysia({ name: 'reviews' })
@@ -13,7 +13,9 @@ export function reviewsModule({ db, auth }: { db: Db; auth: Auth }) {
       {
         params: hotelIdParams,
         body: createReviewBody,
-        verified: true,
+        response: createReviewResponse,
+        detail: { tags: ['reviews'] },
+        session: 'verified',
       },
     )
     .patch(
@@ -22,7 +24,9 @@ export function reviewsModule({ db, auth }: { db: Db; auth: Auth }) {
       {
         params: reviewIdParams,
         body: updateReviewBody,
-        verified: true,
+        response: updateReviewResponse,
+        detail: { tags: ['reviews'] },
+        session: 'verified',
       },
     )
 }

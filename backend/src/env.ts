@@ -9,6 +9,14 @@ export interface AppEnv {
   CLOUDINARY_CLOUD_NAME: string
   CLOUDINARY_API_KEY: string
   CLOUDINARY_API_SECRET: string
+  CORS_ORIGINS?: string
+}
+
+export function parseCorsOrigins(raw: string | undefined): string[] {
+  return (raw ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
 }
 
 export function createAppFromEnv(env: AppEnv) {
@@ -21,5 +29,6 @@ export function createAppFromEnv(env: AppEnv) {
     }),
     authSecret: env.BETTER_AUTH_SECRET,
     authUrl: env.BETTER_AUTH_URL,
+    corsOrigins: parseCorsOrigins(env.CORS_ORIGINS),
   })
 }

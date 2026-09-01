@@ -3,7 +3,7 @@ import type { Db } from '../../db/types'
 import { authPlugin, type Auth } from '../auth'
 import type { CloudinaryService } from '../../services/cloudinary'
 import * as service from './service'
-import { verificationBody, verificationSignatureBody } from './model'
+import { verificationBody, verificationSignatureBody, signatureResponse, verificationResponse } from './model'
 
 export function verification({
   db,
@@ -21,6 +21,8 @@ export function verification({
       ({ user }) => service.prepareVerificationUpload(cloudinary, user.id),
       {
         body: verificationSignatureBody,
+        response: signatureResponse,
+        detail: { tags: ['identity-verification'] },
         session: true,
       },
     )
@@ -30,6 +32,8 @@ export function verification({
         service.verifyIdentity(db, cloudinary, user.id, body.documentType, body.publicId),
       {
         body: verificationBody,
+        response: verificationResponse,
+        detail: { tags: ['identity-verification'] },
         session: true,
       },
     )

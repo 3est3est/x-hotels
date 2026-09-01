@@ -5,7 +5,8 @@
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat", "allow_eval_during_startup"],
   "vars": {
-    "BETTER_AUTH_URL": "https://x-hotels-backend.kanompang450.workers.dev"
+    "BETTER_AUTH_URL": "https://x-hotels-backend.kanompang450.workers.dev",
+    "CORS_ORIGINS": ""
   },
   "hyperdrive": [
     {

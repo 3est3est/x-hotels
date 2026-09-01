@@ -1,4 +1,6 @@
-import { createAppFromEnv, type AppEnv } from './env'
+import { type AnyElysia } from 'elysia'
+import { openapi } from '@elysiajs/openapi'
+import { createAppFromEnv, parseCorsOrigins, type AppEnv } from './env'
 
 const env = process.env as Record<string, string | undefined>
 
@@ -29,8 +31,11 @@ const appEnv: AppEnv = {
   CLOUDINARY_CLOUD_NAME: env.CLOUDINARY_CLOUD_NAME!,
   CLOUDINARY_API_KEY: env.CLOUDINARY_API_KEY!,
   CLOUDINARY_API_SECRET: env.CLOUDINARY_API_SECRET!,
+  CORS_ORIGINS: env.CORS_ORIGINS,
 }
 
-createAppFromEnv(appEnv).listen(3000, () =>
-  console.log('elysia — backend listening on http://localhost:3000'),
-)
+const devApp: AnyElysia = createAppFromEnv(appEnv)
+
+devApp
+  .use(openapi({ documentation: { tags: [{ name: 'X Hotels API' }] } }))
+  .listen(3000, () => console.log('elysia — backend listening on http://localhost:3000'))

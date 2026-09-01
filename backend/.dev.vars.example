@@ -13,3 +13,5 @@ BETTER_AUTH_URL=http://localhost:8787
 CLOUDINARY_CLOUD_NAME=your-cloud
 CLOUDINARY_API_KEY=your-key
 CLOUDINARY_API_SECRET=your-secret
+
+CORS_ORIGINS=http://localhost:5173
