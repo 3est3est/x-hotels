@@ -24,7 +24,7 @@ if (secret.startsWith('change-me') || secret.length < 32) {
 
 const appEnv: AppEnv = {
   DATABASE_URL: env.DATABASE_URL!,
-  BETTER_AUTH_SECRET: env.BETTER_AUTH_SECRET!,
+  BETTER_AUTH_SECRET: secret,
   BETTER_AUTH_URL: env.BETTER_AUTH_URL ?? 'http://localhost:3000',
   CLOUDINARY_CLOUD_NAME: env.CLOUDINARY_CLOUD_NAME!,
   CLOUDINARY_API_KEY: env.CLOUDINARY_API_KEY!,

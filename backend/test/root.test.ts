@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { createTestApp } from './helpers'
 
 describe('GET /', () => {
-  it('greets the visitor', async () => {
+  it('returns hello elysia', async () => {
     const { app } = await createTestApp()
 
     const res = await app.handle(new Request('http://localhost/'))
