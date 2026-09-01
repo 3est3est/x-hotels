@@ -1,11 +1,4 @@
 import { t } from 'elysia'
-import { errorResponse } from '../errors'
-
-export interface TopEntity {
-  id: number
-  name: string
-  bookings: number
-}
 
 const topEntity = t.Object({
   id: t.Integer(),
@@ -21,5 +14,3 @@ export const statsResponse = t.Object({
   mostBookedHotel: t.Union([topEntity, t.Null()]),
   mostBookedRegion: t.Union([topEntity, t.Null()]),
 })
-
-export { errorResponse }

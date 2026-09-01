@@ -31,5 +31,37 @@ describe('Eden treaty inference', () => {
       const ok: boolean = health.data.ok
       expect(ok).toBe(true)
     }
+
+    // Compile-time-only assertions on business routes (never executed).
+    if (false) {
+      const regions = await api.regions.get()
+      const firstName: string | undefined = (regions.data ?? [])[0]?.name
+      void firstName
+
+      const bookings = await api.bookings.get({ $headers: { cookie: 'x=1' }, $query: {} })
+      const list = bookings.data as Array<{
+        checkInDate: string
+        status: 'CONFIRMED' | 'CANCELLED' | 'CHECKED_IN'
+      }>
+      if (list && list[0]) {
+        const checkInDate: string = list[0].checkInDate
+        const status: 'CONFIRMED' | 'CANCELLED' | 'CHECKED_IN' = list[0].status
+        void checkInDate
+        void status
+      }
+
+      // Body is fully typed — wrong shape must fail typecheck.
+      await api.bookings.post(
+        {
+          hotelId: 1,
+          roomTypeId: 1,
+          numGuests: 2,
+          checkInDate: '2026-12-01',
+          nights: 3,
+          $headers: { cookie: 'x=1' },
+          $query: {},
+        },
+      )
+    }
   })
 })

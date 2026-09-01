@@ -32,11 +32,18 @@ describe('CORS', () => {
   it('does not bless unknown origins', async () => {
     const { app } = await createTestApp({ corsOrigins: [ALLOWED] })
 
-    const res = await app.handle(
+    const preflight = await app.handle(
+      new Request('http://localhost/bookings', {
+        method: 'OPTIONS',
+        headers: { Origin: 'https://evil.example', 'Access-Control-Request-Method': 'POST' },
+      }),
+    )
+    expect(preflight.headers.get('access-control-allow-origin')).toBeNull()
+
+    const actual = await app.handle(
       new Request('http://localhost/health', { headers: { Origin: 'https://evil.example' } }),
     )
-
-    expect(res.headers.get('access-control-allow-origin')).toBeNull()
+    expect(actual.headers.get('access-control-allow-origin')).toBeNull()
   })
 
   it('keeps same-origin API usable without CORS origins', async () => {

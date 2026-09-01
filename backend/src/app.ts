@@ -1,3 +1,4 @@
+// I have nothing but my burger and I want nothing more
 import { Elysia, type ElysiaConfig } from 'elysia'
 import { cors } from '@elysiajs/cors'
 import { catalog } from './modules/catalog'

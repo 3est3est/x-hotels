@@ -6,6 +6,7 @@ import type { Db } from '../db/types'
 
 export type Auth = ReturnType<typeof createAuth>
 
+/** Better Auth user shape (incl. X Hotels additional fields) — from the auth instance's own $Infer. */
 export type SessionUser = Auth['$Infer']['Session']['user']
 
 export function createAuth({
