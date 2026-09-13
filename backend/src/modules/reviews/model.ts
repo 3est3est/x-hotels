@@ -1,10 +1,9 @@
 import { t } from 'elysia'
 import { errorResponse } from '../errors'
-import { idParams } from '../params'
 
 const reviewRow = t.Object({
   id: t.Integer(),
-  userId: t.String(),
+  guestId: t.String(),
   hotelId: t.Integer(),
   rating: t.Integer(),
   message: t.Union([t.String(), t.Null()]),
@@ -24,6 +23,3 @@ export const updateReviewBody = t.Object({
   rating: t.Optional(t.Integer({ minimum: 0, maximum: 5 })),
   message: t.Optional(t.Union([t.String(), t.Null()])),
 })
-
-export const reviewIdParams = idParams
-export const hotelIdParams = idParams

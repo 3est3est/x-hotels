@@ -83,4 +83,37 @@ describe('auth', () => {
     )
     expect(res.status).toBe(422)
   })
+
+  it('issues the Identity Verification upload signature without documentType', async () => {
+    const { app } = await createTestApp()
+    const user = await signUp(app, 'signonly@example.com')
+
+    const res = await app.handle(
+      new Request('http://localhost/identity-verification/signature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', cookie: user.cookie },
+        body: JSON.stringify({}),
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.folder).toBe(`identity/${user.userId}`)
+    expect(typeof body.signature).toBe('string')
+  })
+
+  it('still requires documentType when completing verification', async () => {
+    const { app } = await createTestApp()
+    const user = await signUp(app, 'nodoc@example.com')
+
+    const res = await app.handle(
+      new Request('http://localhost/identity-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', cookie: user.cookie },
+        body: JSON.stringify({ publicId: `identity/${user.userId}/doc` }),
+      }),
+    )
+
+    expect(res.status).toBe(422)
+  })
 })

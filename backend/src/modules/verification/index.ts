@@ -1,26 +1,16 @@
 import { Elysia } from 'elysia'
-import type { Db } from '../../db/types'
-import { authPlugin, type Auth } from '../auth'
-import type { CloudinaryService } from '../../services/cloudinary'
+import type { AppContext } from '../../context'
+import { authPlugin } from '../auth'
 import * as service from './service'
-import { verificationBody, verificationSignatureBody, signatureResponse, verificationResponse } from './model'
+import { verificationBody, signatureResponse, verificationResponse } from './model'
 
-export function verification({
-  db,
-  cloudinary,
-  auth,
-}: {
-  db: Db
-  cloudinary: CloudinaryService
-  auth: Auth
-}) {
+export function verification({ db, cloudinary, auth }: AppContext) {
   return new Elysia({ name: 'verification' })
     .use(authPlugin({ auth }))
     .post(
       '/identity-verification/signature',
       ({ user }) => service.prepareVerificationUpload(cloudinary, user.id),
       {
-        body: verificationSignatureBody,
         response: signatureResponse,
         detail: { tags: ['identity-verification'] },
         session: true,

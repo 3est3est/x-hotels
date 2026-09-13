@@ -18,8 +18,14 @@ export const stubCloudinary: CloudinaryService = {
     if (publicId === 'missing') return null
     return { publicId, url: `https://res.cloudinary.com/test/${publicId}` }
   },
-  async signUpload() {
-    throw new Error('not needed in tests')
+  async signUpload({ folder }) {
+    return {
+      cloudName: 'test-cloud',
+      apiKey: 'test-key',
+      folder,
+      timestamp: 1700000000,
+      signature: 'stub-signature',
+    }
   },
 }
 
@@ -133,24 +139,28 @@ export async function managementSession(app: App, db: Db): Promise<TestUser> {
   return { ...manager, cookie }
 }
 
+export function postBooking(app: App, session: TestUser, body: Record<string, unknown>) {
+  return app.handle(
+    new Request('http://localhost/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', cookie: session.cookie },
+      body: JSON.stringify(body),
+    }),
+  )
+}
+
 export async function createBooking(
   app: App,
   guest: TestUser,
   fixture: { hotelId: number; roomTypeId: number },
 ) {
-  const res = await app.handle(
-    new Request('http://localhost/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', cookie: guest.cookie },
-      body: JSON.stringify({
-        hotelId: fixture.hotelId,
-        roomTypeId: fixture.roomTypeId,
-        numGuests: 2,
-        checkInDate: '2026-12-01',
-        nights: 3,
-      }),
-    }),
-  )
+  const res = await postBooking(app, guest, {
+    hotelId: fixture.hotelId,
+    roomTypeId: fixture.roomTypeId,
+    numGuests: 2,
+    checkInDate: '2026-12-01',
+    nights: 3,
+  })
   expect(res.status).toBe(201)
   return (await res.json()) as { id: number }
 }

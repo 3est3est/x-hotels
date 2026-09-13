@@ -17,7 +17,7 @@ if ! grep -q '"user"' <<<"$SIGNUP"; then
 fi
 
 RES=$(curl -s -b "$JAR" -X POST "$BASE/identity-verification/signature" \
-  -H 'Content-Type: application/json' -d '{"documentType":"id_card"}')
+  -H 'Content-Type: application/json' -d '{}')
 
 rm -f "$JAR"
 

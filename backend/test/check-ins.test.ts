@@ -16,7 +16,7 @@ describe('actual check-in', () => {
     const manager = await managementSession(app, db)
 
     const res = await app.handle(
-      new Request(`http://localhost/admin/bookings/${booking.id}/check-in`, {
+      new Request(`http://localhost/management/bookings/${booking.id}/check-in`, {
         method: 'POST',
         headers: { cookie: manager.cookie },
       }),
@@ -35,7 +35,7 @@ describe('actual check-in', () => {
     const booking = await createBooking(app, guest, fixture)
 
     const res = await app.handle(
-      new Request(`http://localhost/admin/bookings/${booking.id}/check-in`, {
+      new Request(`http://localhost/management/bookings/${booking.id}/check-in`, {
         method: 'POST',
         headers: { cookie: guest.cookie },
       }),
@@ -52,13 +52,13 @@ describe('actual check-in', () => {
     const manager = await managementSession(app, db)
 
     await app.handle(
-      new Request(`http://localhost/admin/bookings/${booking.id}/check-in`, {
+      new Request(`http://localhost/management/bookings/${booking.id}/check-in`, {
         method: 'POST',
         headers: { cookie: manager.cookie },
       }),
     )
     const res = await app.handle(
-      new Request(`http://localhost/admin/bookings/${booking.id}/check-in`, {
+      new Request(`http://localhost/management/bookings/${booking.id}/check-in`, {
         method: 'POST',
         headers: { cookie: manager.cookie },
       }),
@@ -81,7 +81,7 @@ describe('actual check-in', () => {
       }),
     )
     const res = await app.handle(
-      new Request(`http://localhost/admin/bookings/${booking.id}/check-in`, {
+      new Request(`http://localhost/management/bookings/${booking.id}/check-in`, {
         method: 'POST',
         headers: { cookie: manager.cookie },
       }),
@@ -95,7 +95,7 @@ describe('actual check-in', () => {
     const manager = await managementSession(app, db)
 
     const res = await app.handle(
-      new Request('http://localhost/admin/bookings/9999/check-in', {
+      new Request('http://localhost/management/bookings/9999/check-in', {
         method: 'POST',
         headers: { cookie: manager.cookie },
       }),
@@ -108,9 +108,23 @@ describe('actual check-in', () => {
     const { app } = await createTestApp()
 
     const res = await app.handle(
-      new Request('http://localhost/admin/bookings/1/check-in', { method: 'POST' }),
+      new Request('http://localhost/management/bookings/1/check-in', { method: 'POST' }),
     )
 
     expect(res.status).toBe(401)
+  })
+
+  it('no longer serves the legacy /admin path', async () => {
+    const { db, app } = await createTestApp()
+    const manager = await managementSession(app, db)
+
+    const res = await app.handle(
+      new Request('http://localhost/admin/bookings/1/check-in', {
+        method: 'POST',
+        headers: { cookie: manager.cookie },
+      }),
+    )
+
+    expect(res.status).toBe(404)
   })
 })

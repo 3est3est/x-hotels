@@ -1,9 +1,9 @@
 import { Elysia } from 'elysia'
-import type { Db } from '../../db/types'
-import { authPlugin, type Auth } from '../auth'
+import type { AppContext } from '../../context'
+import { authPlugin } from '../auth'
 import * as service from './service'
+import { idParams } from '../params'
 import {
-  bookingIdParams,
   createBookingBody,
   createBookingResponse,
   cancelBookingResponse,
@@ -11,7 +11,7 @@ import {
   listBookingsResponse,
 } from './model'
 
-export function bookings({ db, auth }: { db: Db; auth: Auth }) {
+export function bookings({ db, auth }: AppContext) {
   return new Elysia({ name: 'bookings' })
     .use(authPlugin({ auth }))
     .post(
@@ -30,7 +30,7 @@ export function bookings({ db, auth }: { db: Db; auth: Auth }) {
       session: true,
     })
     .get('/bookings/:id', ({ user, params }) => service.getBooking(db, user.id, params.id), {
-      params: bookingIdParams,
+      params: idParams,
       response: getBookingResponse,
       detail: { tags: ['bookings'] },
       session: true,
@@ -39,7 +39,7 @@ export function bookings({ db, auth }: { db: Db; auth: Auth }) {
       '/bookings/:id/cancel',
       ({ user, params }) => service.cancelBooking(db, user.id, params.id),
       {
-        params: bookingIdParams,
+        params: idParams,
         response: cancelBookingResponse,
         detail: { tags: ['bookings'] },
         session: 'verified',

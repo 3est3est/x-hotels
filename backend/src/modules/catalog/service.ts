@@ -28,7 +28,7 @@ export async function getHotelDetail(db: Db, id: number) {
   const [hotel] = await db.select().from(hotels).where(eq(hotels.id, id)).limit(1)
   if (!hotel) return status(404, { error: 'Hotel not found' })
 
-  const rooms = await db
+  const detailRoomTypes = await db
     .select({
       id: roomTypes.id,
       name: roomTypes.name,
@@ -56,5 +56,5 @@ export async function getHotelDetail(db: Db, id: number) {
       ? hotelReviews.reduce((sum, r) => sum + r.rating, 0) / hotelReviews.length
       : null
 
-  return { ...hotel, roomTypes: rooms, reviews: hotelReviews, avgRating }
+  return { ...hotel, roomTypes: detailRoomTypes, reviews: hotelReviews, avgRating }
 }

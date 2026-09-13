@@ -6,8 +6,6 @@ export const hotelListQuery = t.Object({
   q: t.Optional(t.String()),
 })
 
-export { idParams } from '../params'
-
 const imageRef = t.Object({
   url: t.String(),
   publicId: t.Optional(t.String()),

@@ -1,35 +1,22 @@
 import { t } from 'elysia'
 import type { Static } from '@sinclair/typebox'
-import { idParams } from '../params'
 import { errorResponse } from '../errors'
+import { CANCELLED, CHECKED_IN, CONFIRMED } from './state'
 
 export const bookingStatusSchema = t.Union([
-  t.Literal('CONFIRMED'),
-  t.Literal('CANCELLED'),
-  t.Literal('CHECKED_IN'),
+  t.Literal(CONFIRMED),
+  t.Literal(CANCELLED),
+  t.Literal(CHECKED_IN),
 ])
 
-export const bookingRow = t.Object({
+/**
+ * The single Booking representation returned by every Booking route —
+ * identifies the Hotel and its Region (Spec 0001, user story 15) and names
+ * the booker by their domain role (guestId).
+ */
+export const bookingRepresentation = t.Object({
   id: t.Integer(),
-  userId: t.String(),
-  hotelId: t.Integer(),
-  roomTypeId: t.Integer(),
-  numGuests: t.Integer(),
-  checkInDate: t.String(),
-  nights: t.Integer(),
-  status: bookingStatusSchema,
-  checkedInAt: t.Union([t.Date(), t.Null()]),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-})
-
-export const bookingWithCheckOut = t.Object({
-  ...bookingRow.properties,
-  checkOutDate: t.String(),
-})
-
-export const bookingListRow = t.Object({
-  id: t.Integer(),
+  guestId: t.String(),
   hotelId: t.Integer(),
   hotelName: t.String(),
   regionName: t.String(),
@@ -37,13 +24,15 @@ export const bookingListRow = t.Object({
   roomTypeName: t.String(),
   numGuests: t.Integer(),
   checkInDate: t.String(),
+  checkOutDate: t.String(),
   nights: t.Integer(),
   status: bookingStatusSchema,
+  checkedInAt: t.Union([t.Date(), t.Null()]),
   createdAt: t.Date(),
-  checkOutDate: t.String(),
+  updatedAt: t.Date(),
 })
 
-export type BookingListRow = Static<typeof bookingListRow>
+export type BookingRepresentation = Static<typeof bookingRepresentation>
 
 export const createBookingBody = t.Object({
   hotelId: t.Integer({ minimum: 1 }),
@@ -53,9 +42,11 @@ export const createBookingBody = t.Object({
   nights: t.Integer({ minimum: 1 }),
 })
 
-export const bookingIdParams = idParams
-
-export const createBookingResponse = { 201: bookingWithCheckOut, 400: errorResponse }
-export const listBookingsResponse = { 200: t.Array(bookingListRow) }
-export const getBookingResponse = { 200: bookingWithCheckOut, 404: errorResponse }
-export const cancelBookingResponse = { 200: bookingRow, 404: errorResponse, 409: errorResponse }
+export const createBookingResponse = { 201: bookingRepresentation, 400: errorResponse }
+export const listBookingsResponse = { 200: t.Array(bookingRepresentation) }
+export const getBookingResponse = { 200: bookingRepresentation, 404: errorResponse }
+export const cancelBookingResponse = {
+  200: bookingRepresentation,
+  404: errorResponse,
+  409: errorResponse,
+}

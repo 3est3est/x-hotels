@@ -21,7 +21,7 @@ async function guestWithCheckedInStay(app: App, db: Db, email: string) {
   await promoteToManagement(db, manager.userId)
   const managerCookie = await signIn(app, manager.email, manager.password)
   const checkIn = await app.handle(
-    new Request(`http://localhost/admin/bookings/${booking.id}/check-in`, {
+    new Request(`http://localhost/management/bookings/${booking.id}/check-in`, {
       method: 'POST',
       headers: { cookie: managerCookie },
     }),
@@ -58,7 +58,7 @@ describe('reviews', () => {
     const res = await postReview(app, guest, fixture.hotelId, { rating: 5, message: 'great' })
 
     expect(res.status).toBe(201)
-    expect(await res.json()).toMatchObject({ rating: 5, message: 'great' })
+    expect(await res.json()).toMatchObject({ guestId: guest.userId, rating: 5, message: 'great' })
   })
 
   it('accepts a 0-star rating', async () => {

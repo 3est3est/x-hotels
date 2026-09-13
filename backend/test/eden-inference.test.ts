@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { edenTreaty } from '@elysiajs/eden/treaty'
 import { createApp, type App } from '../src/app'
 import { stubCloudinary } from './helpers'
-import type { BookingListRow } from '../src/modules/bookings/model'
+import type { BookingRepresentation } from '../src/modules/bookings/model'
 
 // Compile-time proof that the exported App type works with Eden treaty:
 // route paths, request bodies, and response types must infer from `App`.
@@ -33,7 +33,8 @@ describe('Eden treaty inference', () => {
       expect(ok).toBe(true)
     }
 
-    // Compile-time-only assertions on business routes (never executed).
+    // Compile-time-only assertions on business routes (never executed — the block is
+    // deliberately unreachable; only its types are checked).
     // These verify Eden infers request bodies, path params, query, and response shapes
     // from the exported App type. If the type is widened (e.g. back to AnyElysia)
     // or response schemas are removed, typecheck here will fail.
@@ -45,12 +46,14 @@ describe('Eden treaty inference', () => {
       const bookings = await api.bookings.get({ $headers: { cookie: 'x=1' }, $query: {} })
       // Eden leaves `data` as `unknown` for status-keyed responses on the full App type,
       // so cast to the schema-derived row type (single source of truth). Field types below
-      // are then checked against BookingListRow, so a schema change here fails typecheck.
-      const list = bookings.data as BookingListRow[] | null
+      // are then checked against BookingRepresentation, so a schema change here fails typecheck.
+      const list = bookings.data as BookingRepresentation[] | null
       const checkInDate: string | undefined = list?.[0]?.checkInDate
-      const bookingStatus: BookingListRow['status'] | undefined = list?.[0]?.status
+      const bookingStatus: BookingRepresentation['status'] | undefined = list?.[0]?.status
+      const hotelName: string | undefined = list?.[0]?.hotelName
       void checkInDate
       void bookingStatus
+      void hotelName
 
       await api.bookings.post(
         {
@@ -63,6 +66,10 @@ describe('Eden treaty inference', () => {
           $query: {},
         },
       )
+
+      // Hotel Management routes speak the glossary prefix; the rename must stay visible to the treaty.
+      await api.management.stats.get({ $headers: { cookie: 'x=1' }, $query: {} })
+      await api.management.bookings[1]['check-in'].post({ $headers: { cookie: 'x=1' }, $query: {} })
     }
   })
 })

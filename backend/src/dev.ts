@@ -1,4 +1,3 @@
-import { type AnyElysia } from 'elysia'
 import { openapi } from '@elysiajs/openapi'
 import { createAppFromEnv, parseCorsOrigins, type AppEnv } from './env'
 
@@ -34,8 +33,8 @@ const appEnv: AppEnv = {
   CORS_ORIGINS: env.CORS_ORIGINS,
 }
 
-const devApp: AnyElysia = createAppFromEnv(appEnv)
+const devApp = createAppFromEnv(appEnv)
 
 devApp
   .use(openapi({ documentation: { tags: [{ name: 'X Hotels API' }] } }))
-  .listen(3000, () => console.log('elysia — backend listening on http://localhost:3000'))
+  .listen(3000, () => console.log('🦊 Elysia is running at http://localhost:3000'))

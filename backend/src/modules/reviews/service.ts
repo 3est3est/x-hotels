@@ -2,6 +2,13 @@ import { and, eq } from 'drizzle-orm'
 import { status } from 'elysia'
 import type { Db } from '../../db/types'
 import { bookings as bookingsTable, hotels, reviews } from '../../db/schema'
+import { CHECKED_IN } from '../bookings/state'
+
+/** A Review seen by its author: the booker is named by their domain role. */
+function asGuestReview<T extends { userId: string }>(row: T) {
+  const { userId, ...fields } = row
+  return { ...fields, guestId: userId }
+}
 
 export async function createReview(
   db: Db,
@@ -12,18 +19,18 @@ export async function createReview(
   const [hotel] = await db.select().from(hotels).where(eq(hotels.id, hotelId)).limit(1)
   if (!hotel) return status(404, { error: 'Hotel not found' })
 
-  const [stay] = await db
+  const [checkedInBooking] = await db
     .select({ id: bookingsTable.id })
     .from(bookingsTable)
     .where(
       and(
         eq(bookingsTable.userId, userId),
         eq(bookingsTable.hotelId, hotel.id),
-        eq(bookingsTable.status, 'CHECKED_IN'),
+        eq(bookingsTable.status, CHECKED_IN),
       ),
     )
     .limit(1)
-  if (!stay) {
+  if (!checkedInBooking) {
     return status(403, { error: 'Only guests who checked in can review this hotel' })
   }
 
@@ -39,7 +46,7 @@ export async function createReview(
     .values({ userId, hotelId, rating: body.rating, message: body.message })
     .returning()
 
-  return status(201, review)
+  return status(201, asGuestReview(review))
 }
 
 export async function updateReview(
@@ -63,5 +70,5 @@ export async function updateReview(
     .where(eq(reviews.id, review.id))
     .returning()
 
-  return updated
+  return asGuestReview(updated)
 }

@@ -1,25 +1,16 @@
-import { and, eq } from 'drizzle-orm'
 import { status } from 'elysia'
 import type { Db } from '../../db/types'
-import { bookings as bookingsTable } from '../../db/schema'
+import { bookingRepresentationById } from '../bookings/service'
+import { applyBookingTransition, loadBooking } from '../bookings/state'
 
 export async function checkIn(db: Db, id: number) {
-  const [booking] = await db
-    .select()
-    .from(bookingsTable)
-    .where(eq(bookingsTable.id, id))
-    .limit(1)
+  const booking = await loadBooking(db, id)
   if (!booking) return status(404, { error: 'Booking not found' })
-  if (booking.status !== 'CONFIRMED') {
-    return status(409, { error: 'Only confirmed bookings can be checked in' })
+
+  const transitioned = await applyBookingTransition(db, booking, 'check-in')
+  if (!transitioned.ok) {
+    return status(409, { error: transitioned.conflict })
   }
 
-  const [updated] = await db
-    .update(bookingsTable)
-    .set({ status: 'CHECKED_IN', checkedInAt: new Date(), updatedAt: new Date() })
-    .where(and(eq(bookingsTable.id, booking.id), eq(bookingsTable.status, 'CONFIRMED')))
-    .returning()
-  if (!updated) return status(409, { error: 'Booking is already checked in' })
-
-  return updated
+  return (await bookingRepresentationById(db, id))!
 }

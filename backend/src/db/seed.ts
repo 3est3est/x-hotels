@@ -65,12 +65,12 @@ export async function seedDemoData(db: Db) {
 
   for (const hotel of hotelRows) {
     await db.insert(roomTypes).values(
-      demoRoomTypes.map((room) => ({
+      demoRoomTypes.map((roomType) => ({
         hotelId: hotel.id,
-        name: room.name,
-        description: room.description,
-        capacity: room.capacity,
-        images: room.images,
+        name: roomType.name,
+        description: roomType.description,
+        capacity: roomType.capacity,
+        images: roomType.images,
       })),
     )
   }

@@ -6,10 +6,6 @@ export const identityDocumentTypeSchema = t.Union([
   t.Literal('passport'),
 ])
 
-export const verificationSignatureBody = t.Object({
-  documentType: identityDocumentTypeSchema,
-})
-
 export const verificationBody = t.Object({
   documentType: identityDocumentTypeSchema,
   publicId: t.String(),

@@ -1,4 +1,3 @@
-// I have nothing but my burger and I want nothing more
 import { Elysia, type ElysiaConfig } from 'elysia'
 import { cors } from '@elysiajs/cors'
 import { catalog } from './modules/catalog'
@@ -8,16 +7,12 @@ import { bookings } from './modules/bookings'
 import { checkIns } from './modules/check-ins'
 import { reviewsModule } from './modules/reviews'
 import { stats } from './modules/stats'
+import type { AppContext } from './context'
 import type { CloudinaryService } from './services/cloudinary'
 import type { Db } from './db/types'
 
 export type { Db } from './db/types'
 export type App = ReturnType<typeof createApp>
-
-export interface AppOptions {
-  adapter?: any
-  precompile?: boolean
-}
 
 export function createApp(
   {
@@ -33,11 +28,12 @@ export function createApp(
     authUrl: string
     corsOrigins?: string[]
   },
-  options?: AppOptions,
+  config: ElysiaConfig<''> = {},
 ) {
   const auth = createAuth({ db, secret: authSecret, url: authUrl, corsOrigins })
+  const context: AppContext = { db, cloudinary, auth }
 
-  return new Elysia(options as ElysiaConfig<''>)
+  return new Elysia(config)
     .use(cors({ origin: corsOrigins, credentials: true }))
     .get('/', () => 'hello elysia')
     .get('/health', () => ({ ok: true }))
@@ -45,10 +41,10 @@ export function createApp(
       console.error(error)
     })
     .use(authPlugin({ auth }))
-    .use(verification({ db, cloudinary, auth }))
-    .use(catalog({ db }))
-    .use(bookings({ db, auth }))
-    .use(checkIns({ db, auth }))
-    .use(reviewsModule({ db, auth }))
-    .use(stats({ db, auth }))
+    .use(verification(context))
+    .use(catalog(context))
+    .use(bookings(context))
+    .use(checkIns(context))
+    .use(reviewsModule(context))
+    .use(stats(context))
 }

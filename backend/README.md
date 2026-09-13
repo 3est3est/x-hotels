@@ -41,7 +41,7 @@ bash scripts/smoke-session.sh                              # sign-up + session r
 ## Notes
 
 - The Supabase pooler presents a private-CA certificate that the Workers runtime always verifies, so the Worker reaches the database through Hyperdrive. Postgres clients are created per request (Workers forbid sharing I/O objects across requests).
-- Migrations use the session pooler (port 5432); the runtime uses the transaction pooler (port 6543) as the Hyperdrive origin.
+- Migrations use the session pooler (port 5432); the Hyperdrive origin points at the Supabase **session** pooler (the transaction pooler on 6543 proved unstable in production).
 
 ## Domain
 

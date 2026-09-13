@@ -15,7 +15,7 @@ curl -s -m 60 -c "$DIR/guest.jar" -X POST "$BASE/api/auth/sign-up/email" \
 
 # 2. signed upload params
 SIG=$(curl -s -m 60 -b "$DIR/guest.jar" -X POST "$BASE/identity-verification/signature" \
-  -H 'Content-Type: application/json' -d '{"documentType":"id_card"}')
+  -H 'Content-Type: application/json' -d '{}')
 CLOUD=$(jq -r .cloudName <<<"$SIG") || fail "signature endpoint"
 APIKEY=$(jq -r .apiKey <<<"$SIG")
 FOLDER=$(jq -r .folder <<<"$SIG")
@@ -57,7 +57,7 @@ curl -s -m 60 -c "$DIR/manager.jar" -X POST "$BASE/api/auth/sign-in/email" \
   | grep -q '"user"' || fail "manager sign-in"
 
 # 8. check-in
-CHECKIN=$(curl -s -m 60 -b "$DIR/manager.jar" -X POST "$BASE/admin/bookings/$BOOKING_ID/check-in")
+CHECKIN=$(curl -s -m 60 -b "$DIR/manager.jar" -X POST "$BASE/management/bookings/$BOOKING_ID/check-in")
 jq -r .status <<<"$CHECKIN" | grep -q CHECKED_IN || fail "check-in: $(echo "$CHECKIN" | head -c 300)"
 
 # 9. review
@@ -66,7 +66,7 @@ REVIEW=$(curl -s -m 60 -b "$DIR/guest.jar" -X POST "$BASE/hotels/$HOTEL_ID/revie
 jq -r .rating <<<"$REVIEW" | grep -q 5 || fail "review: $(echo "$REVIEW" | head -c 300)"
 
 # 10. stats
-STATS=$(curl -s -m 60 -b "$DIR/manager.jar" "$BASE/admin/stats")
+STATS=$(curl -s -m 60 -b "$DIR/manager.jar" "$BASE/management/stats")
 jq -e '.totalBookings >= 1 and .actualCheckIns >= 1' <<<"$STATS" >/dev/null || fail "stats: $STATS"
 
 echo "SMOKE_OK: booking=$BOOKING_ID hotel=$HOTEL_ID stats=$(echo "$STATS" | head -c 200)"

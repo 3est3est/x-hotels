@@ -1,9 +1,10 @@
 import { Elysia } from 'elysia'
-import type { Db } from '../../db/types'
+import type { AppContext } from '../../context'
 import * as service from './service'
-import { hotelDetailResponse, hotelListQuery, hotelListResponse, idParams, regionListResponse } from './model'
+import { idParams } from '../params'
+import { hotelDetailResponse, hotelListQuery, hotelListResponse, regionListResponse } from './model'
 
-export function catalog({ db }: { db: Db }) {
+export function catalog({ db }: AppContext) {
   return new Elysia({ name: 'catalog' })
     .get('/regions', () => service.listRegions(db), {
       response: regionListResponse,

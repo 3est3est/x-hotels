@@ -1,18 +1,13 @@
 import { describe, expect, it } from 'bun:test'
-import { createTestApp, verifiedUser, signUp, seedCatalog, type TestUser } from './helpers'
-import type { App } from '../src/app'
+import {
+  createTestApp,
+  postBooking,
+  verifiedUser,
+  signUp,
+  seedCatalog,
+} from './helpers'
 
 type CatalogFixture = Awaited<ReturnType<typeof seedCatalog>>
-
-function postBooking(app: App, session: TestUser, body: Record<string, unknown>) {
-  return app.handle(
-    new Request('http://localhost/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', cookie: session.cookie },
-      body: JSON.stringify(body),
-    }),
-  )
-}
 
 const validBody = (fixture: CatalogFixture, overrides: Record<string, unknown> = {}) => ({
   hotelId: fixture.hotelId,
@@ -49,14 +44,60 @@ describe('booking lifecycle', () => {
     expect(body.nights).toBe(3)
   })
 
-  it('rejects more guests than the room type capacity', async () => {
+  it('returns the Hotel and Region in the created Booking (story 15)', async () => {
+    const { db, app } = await createTestApp()
+    const fixture = await seedCatalog(db)
+    const guest = await verifiedUser(app, 'where@example.com')
+
+    const res = await postBooking(app, guest, validBody(fixture))
+    const body = await res.json()
+
+    expect(res.status).toBe(201)
+    expect(body).toMatchObject({
+      guestId: guest.userId,
+      hotelId: fixture.hotelId,
+      hotelName: 'X Hotel Bangkok',
+      regionName: 'Thailand',
+      roomTypeId: fixture.roomTypeId,
+      roomTypeName: 'Deluxe',
+      checkOutDate: '2026-12-04',
+    })
+    expect(body.userId).toBeUndefined()
+  })
+
+  it('fetches a single Booking with the same representation as the list', async () => {
+    const { db, app } = await createTestApp()
+    const fixture = await seedCatalog(db)
+    const guest = await verifiedUser(app, 'single@example.com')
+    const created = await postBooking(app, guest, validBody(fixture))
+    const createdBody = (await created.json()) as { id: number }
+
+    const res = await app.handle(
+      new Request(`http://localhost/bookings/${createdBody.id}`, { headers: { cookie: guest.cookie } }),
+    )
+    const listed = await (
+      await app.handle(new Request('http://localhost/bookings', { headers: { cookie: guest.cookie } }))
+    ).json()
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body).toMatchObject({
+      guestId: guest.userId,
+      hotelName: 'X Hotel Bangkok',
+      regionName: 'Thailand',
+      roomTypeName: 'Deluxe',
+    })
+    expect(Object.keys(body).sort()).toEqual(Object.keys(listed[0]).sort())
+  })
+
+  it('accepts more guests than the Room Type maximum-guest capacity (no unapproved booking rule)', async () => {
     const { db, app } = await createTestApp()
     const fixture = await seedCatalog(db, 2)
     const guest = await verifiedUser(app, 'crowd@example.com')
 
     const res = await postBooking(app, guest, validBody(fixture, { numGuests: 3 }))
 
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(201)
   })
 
   it('rejects a room type from a different hotel', async () => {
@@ -138,7 +179,9 @@ describe('booking lifecycle', () => {
     )
 
     expect(cancel.status).toBe(200)
-    expect((await cancel.json()).status).toBe('CANCELLED')
+    const cancelledBody = await cancel.json()
+    expect(cancelledBody.status).toBe('CANCELLED')
+    expect(cancelledBody.hotelName).toBe('X Hotel Bangkok')
     expect(again.status).toBe(409)
   })
 
