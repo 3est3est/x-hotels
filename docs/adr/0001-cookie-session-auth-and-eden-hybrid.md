@@ -34,7 +34,7 @@ Constraints discovered while wiring this up (kept as guardrails):
 
 - `new Elysia(config)` must not be cast to `ElysiaConfig<any>` — the `any` prefix corrupts Eden's path inference (routes become `${any}`).
 - The auth macro is a single parameterized macro (`session: true | 'verified' | 'management'`). Multiple boolean macros explode Elysia's type union and break both `tsc` and treaty.
-- TypeScript 5.9 is required; TypeScript 7 (native) currently fails with "Excessive complexity" on this app's type union.
+- ~~TypeScript 5.9 is required; TypeScript 7 (native) currently fails with "Excessive complexity" on this app's type union.~~ **Update 2026-09-13**: re-tested; TypeScript 7.0.2 now type-checks this app cleanly (`tsc --noEmit`, all 49 tests pass). Backend moved to `typescript@7.0.2`. The `ElysiaConfig<''>` and single-macro guardrails above remain mandatory regardless of TS version; if a future TS 7.x release regresses, revert to `5.9.3`.
 
 ### 3. Not a Next.js/Astro app
 

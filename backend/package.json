@@ -23,7 +23,7 @@
     "@elysiajs/eden": "^1.4.9",
     "@types/bun": "^1.4.0",
     "drizzle-kit": "^0.31.10",
-    "typescript": "5.9",
+    "typescript": "7.0.2",
     "wrangler": "^4.127.1"
   }
 }
