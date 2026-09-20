@@ -26,8 +26,7 @@ export const user = pgTable('user', {
   image: text('image'),
   role: text('role').$type<Role>().notNull().default('guest'),
   idDocumentType: text('id_document_type').$type<IdentityDocumentType>(),
-  idDocumentUrl: text('id_document_url'),
-  idDocumentPublicId: text('id_document_public_id'),
+  idDocumentNumber: text('id_document_number'),
   verifiedAt: timestamp('verified_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -74,11 +73,24 @@ export const verification = pgTable('verification', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
-export const regions = pgTable('regions', {
+export const countries = pgTable('countries', {
   id: serial('id').primaryKey(),
   name: text('name').notNull().unique(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
+
+export const regions = pgTable(
+  'regions',
+  {
+    id: serial('id').primaryKey(),
+    countryId: integer('country_id')
+      .notNull()
+      .references(() => countries.id),
+    name: text('name').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique('regions_country_name_unique').on(table.countryId, table.name)],
+)
 
 export const hotels = pgTable('hotels', {
   id: serial('id').primaryKey(),

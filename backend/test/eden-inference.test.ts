@@ -39,9 +39,13 @@ describe('Eden treaty inference', () => {
     // from the exported App type. If the type is widened (e.g. back to AnyElysia)
     // or response schemas are removed, typecheck here will fail.
     if (false) {
-      const regions = await api.regions.get()
-      const firstName: string | undefined = (regions.data ?? [])[0]?.name
+      const countries = await api.countries.get()
+      const firstName: string | undefined = (countries.data ?? [])[0]?.name
+      const firstRegionName: string | undefined = (countries.data ?? [])[0]?.regions[0]?.name
       void firstName
+      void firstRegionName
+
+      await api.hotels.get({ $query: { countryId: 1, regionId: 1, q: 'x' } })
 
       const bookings = await api.bookings.get({ $headers: { cookie: 'x=1' }, $query: {} })
       // Eden leaves `data` as `unknown` for status-keyed responses on the full App type,

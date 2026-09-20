@@ -13,4 +13,5 @@ export const statsResponse = t.Object({
   mostBookedRoomType: t.Union([mostBookedEntry, t.Null()]),
   mostBookedHotel: t.Union([mostBookedEntry, t.Null()]),
   mostBookedRegion: t.Union([mostBookedEntry, t.Null()]),
+  mostBookedCountry: t.Union([mostBookedEntry, t.Null()]),
 })

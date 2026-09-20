@@ -11,8 +11,8 @@ export const bookingStatusSchema = t.Union([
 
 /**
  * The single Booking representation returned by every Booking route —
- * identifies the Hotel and its Region (Spec 0001, user story 15) and names
- * the booker by their domain role (guestId).
+ * identifies the Hotel with its Region and Country (Spec 0001, user story 15;
+ * Spec 0003 adds the Country) and names the booker by their domain role (guestId).
  */
 export const bookingRepresentation = t.Object({
   id: t.Integer(),
@@ -20,6 +20,7 @@ export const bookingRepresentation = t.Object({
   hotelId: t.Integer(),
   hotelName: t.String(),
   regionName: t.String(),
+  countryName: t.String(),
   roomTypeId: t.Integer(),
   roomTypeName: t.String(),
   numGuests: t.Integer(),

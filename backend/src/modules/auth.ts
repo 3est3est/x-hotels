@@ -42,8 +42,7 @@ export function createAuth({
       additionalFields: {
         role: { type: 'string', defaultValue: 'guest', input: false },
         idDocumentType: { type: 'string', required: false, input: false },
-        idDocumentUrl: { type: 'string', required: false, input: false },
-        idDocumentPublicId: { type: 'string', required: false, input: false },
+        idDocumentNumber: { type: 'string', required: false, input: false },
         verifiedAt: { type: 'date', required: false, input: false },
       },
     },

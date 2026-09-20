@@ -52,13 +52,13 @@ describe('auth', () => {
       new Request('http://localhost/identity-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ documentType: 'id_card', publicId: 'identity/x/doc' }),
+        body: JSON.stringify({ documentType: 'id_card', documentNumber: '1234567890121' }),
       }),
     )
     expect(res.status).toBe(401)
   })
 
-  it('verifies identity and records the document', async () => {
+  it('verifies identity by document number and records it on the account', async () => {
     const { app } = await createTestApp()
     const user = await signUp(app, 'verify@example.com')
     await verifyIdentity(app, user, 'passport')
@@ -66,54 +66,6 @@ describe('auth', () => {
     const session = await getSession(app, user.cookie)
     expect(session.body.user.verifiedAt).not.toBeNull()
     expect(session.body.user.idDocumentType).toBe('passport')
-    expect(session.body.user.idDocumentUrl).toContain('identity/')
-    expect(session.body.user.idDocumentPublicId).toContain('identity/')
-  })
-
-  it('rejects verification when the uploaded asset cannot be found', async () => {
-    const { app } = await createTestApp()
-    const user = await signUp(app, 'missing-doc@example.com')
-
-    const res = await app.handle(
-      new Request('http://localhost/identity-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', cookie: user.cookie },
-        body: JSON.stringify({ documentType: 'id_card', publicId: 'missing' }),
-      }),
-    )
-    expect(res.status).toBe(422)
-  })
-
-  it('issues the Identity Verification upload signature without documentType', async () => {
-    const { app } = await createTestApp()
-    const user = await signUp(app, 'signonly@example.com')
-
-    const res = await app.handle(
-      new Request('http://localhost/identity-verification/signature', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', cookie: user.cookie },
-        body: JSON.stringify({}),
-      }),
-    )
-
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body.folder).toBe(`identity/${user.userId}`)
-    expect(typeof body.signature).toBe('string')
-  })
-
-  it('still requires documentType when completing verification', async () => {
-    const { app } = await createTestApp()
-    const user = await signUp(app, 'nodoc@example.com')
-
-    const res = await app.handle(
-      new Request('http://localhost/identity-verification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', cookie: user.cookie },
-        body: JSON.stringify({ publicId: `identity/${user.userId}/doc` }),
-      }),
-    )
-
-    expect(res.status).toBe(422)
+    expect(session.body.user.idDocumentNumber).toBe('AB123456')
   })
 })

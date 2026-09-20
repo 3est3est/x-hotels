@@ -6,14 +6,8 @@ export interface SignedUploadParams {
   signature: string
 }
 
-export interface IdentityAsset {
-  publicId: string
-  url: string
-}
-
 export interface CloudinaryService {
   signUpload(params: { folder: string }): Promise<SignedUploadParams>
-  findIdentityAsset(publicId: string): Promise<IdentityAsset | null>
 }
 
 async function sha1Hex(input: string): Promise<string> {
@@ -42,20 +36,6 @@ export function createCloudinary(config: {
       const timestamp = Math.floor(Date.now() / 1000)
       const signature = await signParams({ folder, timestamp: String(timestamp) })
       return { cloudName, apiKey, folder, timestamp, signature }
-    },
-    async findIdentityAsset(publicId) {
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/resources/image/upload/${encodeURIComponent(publicId)}`,
-        {
-          headers: {
-            Authorization: 'Basic ' + btoa(`${apiKey}:${apiSecret}`),
-          },
-        },
-      )
-      if (res.status === 404) return null
-      if (!res.ok) throw new Error(`Cloudinary API error: ${res.status}`)
-      const data = (await res.json()) as { public_id: string; secure_url: string }
-      return { publicId: data.public_id, url: data.secure_url }
     },
   }
 }

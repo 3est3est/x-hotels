@@ -43,6 +43,15 @@ bash scripts/smoke-session.sh                              # sign-up + session r
 - The Supabase pooler presents a private-CA certificate that the Workers runtime always verifies, so the Worker reaches the database through Hyperdrive. Postgres clients are created per request (Workers forbid sharing I/O objects across requests).
 - Migrations use the session pooler (port 5432); the Hyperdrive origin points at the Supabase **session** pooler (the transaction pooler on 6543 proved unstable in production).
 
+## Identity Verification
+
+Verification is a document number — there is no upload and no image (ADR 0002):
+
+- A signed-in Guest `POST /identity-verification` with `{ documentType, documentNumber }`.
+- `documentType: 'id_card'` accepts a Thai national ID (13 digits, mod-11 check digit) or an Israeli Teudat Zehut (9 digits, weighted check digit). `documentType: 'passport'` accepts any nationality, 5–15 alphanumerics.
+- Numbers are normalized before validation and storage; a wrong number is refused with 422 and the account stays unverified. Verified accounts store `id_document_type`, `id_document_number`, `verified_at`.
+- Cloudinary is used for hotel/room images only and is no longer part of the trust path.
+
 ## Domain
 
-See `../CONTEXT.md` for the glossary (Guest, Region, Hotel, Room Type, Booking, Actual Check-in, Review, Identity Verification) and `../.scratch/x-hotel-backend/spec.md` for the spec.
+See `../CONTEXT.md` for the glossary (Guest, Country, Region, Hotel, Room Type, Booking, Actual Check-in, Review, Identity Verification), `../docs/HANDOFF.md` for the current system summary and route inventory, and `../.scratch/backend-revision-0003/spec.md` for the latest spec.

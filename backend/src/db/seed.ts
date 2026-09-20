@@ -1,5 +1,5 @@
 import type { Db } from './types'
-import { hotels, regions, roomTypes, type ImageRef } from './schema'
+import { countries, hotels, regions, roomTypes, type ImageRef } from './schema'
 
 const img = (name: string): ImageRef[] => [
   { url: `https://res.cloudinary.com/demo/image/upload/${name}.jpg`, publicId: name },
@@ -26,44 +26,80 @@ const demoRoomTypes = [
   },
 ]
 
+/**
+ * The group's operating structure: one branch Hotel per Region, named for the
+ * Region's principal city. The migration writes the same Countries and Regions
+ * into an existing database, so seeding an already-migrated database only fills
+ * in what is missing.
+ */
+const business: Record<string, Record<string, string>> = {
+  Thailand: {
+    Northern: 'Chiang Mai',
+    Northeastern: 'Khon Kaen',
+    Central: 'Bangkok',
+    Eastern: 'Pattaya',
+    Western: 'Kanchanaburi',
+    Southern: 'Phuket',
+  },
+  Israel: {
+    Jerusalem: 'Jerusalem',
+    Northern: 'Tiberias',
+    Haifa: 'Haifa',
+    Central: 'Netanya',
+    'Tel Aviv': 'Tel Aviv',
+    Southern: 'Eilat',
+  },
+}
+
+const demoImages = ['sample', 'beach_house', 'hotel_binoc', 'building', 'waterfall', 'sky']
+
 export async function seedDemoData(db: Db) {
-  const regionRows = await db
+  const countryNames = Object.keys(business)
+  const insertedCountries = await db
+    .insert(countries)
+    .values(countryNames.map((name) => ({ name })))
+    .onConflictDoNothing()
+    .returning({ id: countries.id })
+
+  const countryRows = await db.select({ id: countries.id, name: countries.name }).from(countries)
+  const countryId = new Map(countryRows.map((country) => [country.name, country.id]))
+
+  const regionValues = Object.entries(business).flatMap(([country, branches]) =>
+    Object.keys(branches).map((name) => ({ countryId: countryId.get(country)!, name })),
+  )
+  const insertedRegions = await db
     .insert(regions)
-    .values([{ name: 'Thailand' }, { name: 'Israel' }])
-    .returning()
-  const regionId = new Map(regionRows.map((r) => [r.name, r.id]))
+    .values(regionValues)
+    .onConflictDoNothing()
+    .returning({ id: regions.id })
 
-  const hotelRows = await db
+  const regionRows = await db
+    .select({ id: regions.id, name: regions.name, countryId: regions.countryId })
+    .from(regions)
+  const regionOf = (country: string, region: string) =>
+    regionRows.find((row) => row.countryId === countryId.get(country) && row.name === region)!.id
+
+  const hotelValues = Object.entries(business).flatMap(([country, branches]) =>
+    Object.entries(branches).map(([region, city], index) => ({
+      regionId: regionOf(country, region),
+      name: `X Hotel ${city}`,
+      description: `The X Hotel branch in ${city}, ${region} Region, ${country}.`,
+      images: img(demoImages[index % demoImages.length]),
+    })),
+  )
+  const insertedHotels = await db
     .insert(hotels)
-    .values([
-      {
-        regionId: regionId.get('Thailand')!,
-        name: 'X Hotel Bangkok',
-        description: 'The flagship X Hotel in the heart of Bangkok.',
-        images: img('sample'),
-      },
-      {
-        regionId: regionId.get('Thailand')!,
-        name: 'X Hotel Phuket',
-        description: 'A beachfront X Hotel on the Andaman coast.',
-        images: img('beach_house'),
-      },
-      {
-        regionId: regionId.get('Israel')!,
-        name: 'X Hotel Tel Aviv',
-        description: 'A modern X Hotel by the Mediterranean.',
-        images: img('hotel_binoc'),
-      },
-      {
-        regionId: regionId.get('Israel')!,
-        name: 'X Hotel Jerusalem',
-        description: 'A historic X Hotel steps from the Old City.',
-        images: img('building'),
-      },
-    ])
-    .returning()
+    .values(hotelValues)
+    .onConflictDoNothing()
+    .returning({ id: hotels.id })
 
+  const hotelRows = await db.select({ id: hotels.id }).from(hotels)
+  const hotelsWithRoomTypes = new Set(
+    (await db.select({ hotelId: roomTypes.hotelId }).from(roomTypes)).map((row) => row.hotelId),
+  )
+  let insertedRoomTypes = 0
   for (const hotel of hotelRows) {
+    if (hotelsWithRoomTypes.has(hotel.id)) continue
     await db.insert(roomTypes).values(
       demoRoomTypes.map((roomType) => ({
         hotelId: hotel.id,
@@ -73,9 +109,15 @@ export async function seedDemoData(db: Db) {
         images: roomType.images,
       })),
     )
+    insertedRoomTypes += demoRoomTypes.length
   }
 
-  return { regions: regionRows.length, hotels: hotelRows.length, roomTypes: hotelRows.length * demoRoomTypes.length }
+  return {
+    countries: insertedCountries.length,
+    regions: insertedRegions.length,
+    hotels: insertedHotels.length,
+    roomTypes: insertedRoomTypes,
+  }
 }
 
 const isMain = import.meta.main
@@ -88,6 +130,9 @@ if (isMain) {
   const { createDb } = await import('./driver')
   const db = createDb(url)
   const counts = await seedDemoData(db)
-  console.log(`seeded ${counts.regions} regions, ${counts.hotels} hotels, ${counts.roomTypes} room types`)
+  console.log(
+    `seeded ${counts.countries} countries, ${counts.regions} regions, ${counts.hotels} hotels, ${counts.roomTypes} room types`,
+  )
   await db.$client.end()
 }
+

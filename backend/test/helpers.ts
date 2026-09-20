@@ -1,23 +1,19 @@
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
 import { migrate } from 'drizzle-orm/pglite/migrator'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { expect } from 'bun:test'
 import { join } from 'node:path'
 import { openapi } from '@elysiajs/openapi'
 import { type AnyElysia } from 'elysia'
 import * as schema from '../src/db/schema'
-import { hotels, regions, roomTypes, user } from '../src/db/schema'
+import { countries, hotels, regions, roomTypes, user } from '../src/db/schema'
 import { createApp, type Db } from '../src/app'
 
 type App = Awaited<ReturnType<typeof createTestApp>>['app']
 import type { CloudinaryService } from '../src/services/cloudinary'
 
 export const stubCloudinary: CloudinaryService = {
-  async findIdentityAsset(publicId: string) {
-    if (publicId === 'missing') return null
-    return { publicId, url: `https://res.cloudinary.com/test/${publicId}` }
-  },
   async signUpload({ folder }) {
     return {
       cloudName: 'test-cloud',
@@ -78,16 +74,23 @@ export async function promoteToManagement(db: Db, userId: string): Promise<void>
   await db.update(user).set({ role: 'management' }).where(eq(user.id, userId))
 }
 
+/** Valid test document numbers, one per type (Spec 0003 verification by document number). */
+const DEFAULT_DOCUMENT_NUMBERS: Record<'id_card' | 'passport', string> = {
+  id_card: '1234567890121',
+  passport: 'AB123456',
+}
+
 export async function verifyIdentity(
   app: App,
   session: TestUser,
   documentType: 'id_card' | 'passport' = 'id_card',
+  documentNumber: string = DEFAULT_DOCUMENT_NUMBERS[documentType],
 ): Promise<void> {
   const res = await app.handle(
     new Request('http://localhost/identity-verification', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', cookie: session.cookie },
-      body: JSON.stringify({ documentType, publicId: `identity/${session.userId}/doc` }),
+      body: JSON.stringify({ documentType, documentNumber }),
     }),
   )
   if (!res.ok) throw new Error(`verification failed: ${res.status} ${await res.text()}`)
@@ -120,16 +123,43 @@ export async function verifiedUser(
 }
 
 export async function seedCatalog(db: Db, capacity = 2) {
-  const [region] = await db.insert(regions).values({ name: 'Thailand' }).returning()
-  const [hotel] = await db
-    .insert(hotels)
-    .values({ regionId: region.id, name: 'X Hotel Bangkok' })
-    .returning()
+  const thailand = await seedBranch(db, 'Thailand', 'Central', 'X Hotel Bangkok', capacity)
+  const israel = await seedBranch(db, 'Israel', 'Tel Aviv', 'X Hotel Tel Aviv', capacity)
+  return { ...thailand, israel }
+}
+
+/**
+ * Adds one branch Hotel (with one Room Type) to a Region of the business
+ * structure the migration writes, so fixtures sit on real Countries and Regions
+ * instead of inventing a parallel world.
+ */
+export async function seedBranch(
+  db: Db,
+  countryName: string,
+  regionName: string,
+  hotelName: string,
+  capacity: number,
+) {
+  const [country] = await db.select().from(countries).where(eq(countries.name, countryName))
+  const [region] = await db
+    .select()
+    .from(regions)
+    .where(and(eq(regions.countryId, country.id), eq(regions.name, regionName)))
+  const [hotel] = await db.insert(hotels).values({ regionId: region.id, name: hotelName }).returning()
   const [roomType] = await db
     .insert(roomTypes)
     .values({ hotelId: hotel.id, name: 'Deluxe', capacity, description: '' })
     .returning()
-  return { regionId: region.id, hotelId: hotel.id, roomTypeId: roomType.id, capacity }
+  return {
+    countryId: country.id,
+    countryName: country.name,
+    regionId: region.id,
+    regionName: region.name,
+    hotelId: hotel.id,
+    hotelName: hotel.name,
+    roomTypeId: roomType.id,
+    capacity,
+  }
 }
 
 export async function managementSession(app: App, db: Db): Promise<TestUser> {

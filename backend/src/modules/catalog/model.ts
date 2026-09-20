@@ -2,6 +2,7 @@ import { t } from 'elysia'
 import { errorResponse } from '../errors'
 
 export const hotelListQuery = t.Object({
+  countryId: t.Optional(t.Numeric()),
   regionId: t.Optional(t.Numeric()),
   q: t.Optional(t.String()),
 })
@@ -11,10 +12,17 @@ const imageRef = t.Object({
   publicId: t.Optional(t.String()),
 })
 
-export const regionListResponse = t.Array(
+/** The group's operating structure: Countries, each with the Regions inside it. */
+export const countryListResponse = t.Array(
   t.Object({
     id: t.Integer(),
     name: t.String(),
+    regions: t.Array(
+      t.Object({
+        id: t.Integer(),
+        name: t.String(),
+      }),
+    ),
   }),
 )
 
@@ -32,6 +40,8 @@ export const hotelDetailResponse = {
   200: t.Object({
     id: t.Integer(),
     regionId: t.Integer(),
+    regionName: t.String(),
+    countryName: t.String(),
     name: t.String(),
     description: t.String(),
     images: t.Array(imageRef),

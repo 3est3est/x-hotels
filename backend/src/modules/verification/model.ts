@@ -8,18 +8,11 @@ export const identityDocumentTypeSchema = t.Union([
 
 export const verificationBody = t.Object({
   documentType: identityDocumentTypeSchema,
-  publicId: t.String(),
-})
-
-export const signatureResponse = t.Object({
-  cloudName: t.String(),
-  apiKey: t.String(),
-  folder: t.String(),
-  timestamp: t.Integer(),
-  signature: t.String(),
+  documentNumber: t.String(),
 })
 
 export const verificationResponse = {
   200: t.Object({ verified: t.Boolean() }),
   422: errorResponse,
 }
+

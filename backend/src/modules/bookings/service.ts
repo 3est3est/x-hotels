@@ -1,7 +1,7 @@
 import { and, desc, eq } from 'drizzle-orm'
 import { status } from 'elysia'
 import type { Db } from '../../db/types'
-import { bookings as bookingsTable, hotels, regions, roomTypes } from '../../db/schema'
+import { bookings as bookingsTable, countries, hotels, regions, roomTypes } from '../../db/schema'
 import { applyBookingTransition, loadBooking } from './state'
 
 function checkOutDate(checkInDate: string, nights: number): string {
@@ -21,6 +21,7 @@ const bookingColumns = {
   hotelId: bookingsTable.hotelId,
   hotelName: hotels.name,
   regionName: regions.name,
+  countryName: countries.name,
   roomTypeId: bookingsTable.roomTypeId,
   roomTypeName: roomTypes.name,
   numGuests: bookingsTable.numGuests,
@@ -38,6 +39,7 @@ function bookingsJoined(db: Db) {
     .from(bookingsTable)
     .innerJoin(hotels, eq(hotels.id, bookingsTable.hotelId))
     .innerJoin(regions, eq(regions.id, hotels.regionId))
+    .innerJoin(countries, eq(countries.id, regions.countryId))
     .innerJoin(roomTypes, eq(roomTypes.id, bookingsTable.roomTypeId))
 }
 
@@ -45,7 +47,7 @@ function toRepresentation<T extends { checkInDate: string; nights: number }>(row
   return { ...row, checkOutDate: checkOutDate(row.checkInDate, row.nights) }
 }
 
-/** The single Booking representation — Hotel/Region/Room Type identity per story 15. */
+/** The single Booking representation — Hotel/Region/Country/Room Type identity per story 15. */
 export async function bookingRepresentationById(db: Db, id: number) {
   const [row] = await bookingsJoined(db)
     .where(eq(bookingsTable.id, id))

@@ -2,12 +2,12 @@ import { Elysia } from 'elysia'
 import type { AppContext } from '../../context'
 import * as service from './service'
 import { idParams } from '../params'
-import { hotelDetailResponse, hotelListQuery, hotelListResponse, regionListResponse } from './model'
+import { countryListResponse, hotelDetailResponse, hotelListQuery, hotelListResponse } from './model'
 
 export function catalog({ db }: AppContext) {
   return new Elysia({ name: 'catalog' })
-    .get('/regions', () => service.listRegions(db), {
-      response: regionListResponse,
+    .get('/countries', () => service.listCountries(db), {
+      response: countryListResponse,
       detail: { tags: ['catalog'] },
     })
     .get('/hotels', ({ query }) => service.listHotels(db, query), {
@@ -21,3 +21,4 @@ export function catalog({ db }: AppContext) {
       detail: { tags: ['catalog'] },
     })
 }
+

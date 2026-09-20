@@ -5,11 +5,13 @@ import {
   verifiedUser,
   signUp,
   seedCatalog,
+  seedBranch,
 } from './helpers'
 
 type CatalogFixture = Awaited<ReturnType<typeof seedCatalog>>
+type BranchFixture = Awaited<ReturnType<typeof seedBranch>>
 
-const validBody = (fixture: CatalogFixture, overrides: Record<string, unknown> = {}) => ({
+const validBody = (fixture: BranchFixture, overrides: Record<string, unknown> = {}) => ({
   hotelId: fixture.hotelId,
   roomTypeId: fixture.roomTypeId,
   numGuests: 2,
@@ -57,7 +59,7 @@ describe('booking lifecycle', () => {
       guestId: guest.userId,
       hotelId: fixture.hotelId,
       hotelName: 'X Hotel Bangkok',
-      regionName: 'Thailand',
+      regionName: 'Central',
       roomTypeId: fixture.roomTypeId,
       roomTypeName: 'Deluxe',
       checkOutDate: '2026-12-04',
@@ -84,7 +86,7 @@ describe('booking lifecycle', () => {
     expect(body).toMatchObject({
       guestId: guest.userId,
       hotelName: 'X Hotel Bangkok',
-      regionName: 'Thailand',
+      regionName: 'Central',
       roomTypeName: 'Deluxe',
     })
     expect(Object.keys(body).sort()).toEqual(Object.keys(listed[0]).sort())
@@ -201,5 +203,81 @@ describe('booking lifecycle', () => {
     )
 
     expect(res.status).toBe(404)
+  })
+
+  it('carries the Country of the Hotel through every Booking route', async () => {
+    const { db, app } = await createTestApp()
+    const thailand = await seedBranch(db, 'Thailand', 'Central', 'X Hotel Bangkok', 2)
+    const israel = await seedBranch(db, 'Israel', 'Tel Aviv', 'X Hotel Tel Aviv', 2)
+    const guest = await verifiedUser(app, 'geographer@example.com')
+
+    const created = await postBooking(app, guest, validBody(thailand))
+    expect(created.status).toBe(201)
+    const createdBody = await created.json()
+    expect(createdBody).toMatchObject({
+      hotelName: 'X Hotel Bangkok',
+      regionName: 'Central',
+      countryName: 'Thailand',
+    })
+
+    const fetched = await app.handle(
+      new Request(`http://localhost/bookings/${createdBody.id}`, { headers: { cookie: guest.cookie } }),
+    )
+    expect(fetched.status).toBe(200)
+    expect((await fetched.json()).countryName).toBe('Thailand')
+
+    const israelBooking = await postBooking(app, guest, validBody(israel))
+    expect(israelBooking.status).toBe(201)
+    expect((await israelBooking.json()).countryName).toBe('Israel')
+
+    const listed = await app.handle(
+      new Request('http://localhost/bookings', { headers: { cookie: guest.cookie } }),
+    )
+    const list = (await listed.json()) as Array<{ countryName: string }>
+    expect(list.map((booking) => booking.countryName).sort()).toEqual(['Israel', 'Thailand'])
+
+    const cancel = await app.handle(
+      new Request(`http://localhost/bookings/${createdBody.id}/cancel`, {
+        method: 'POST',
+        headers: { cookie: guest.cookie },
+      }),
+    )
+    expect(cancel.status).toBe(200)
+    expect((await cancel.json()).countryName).toBe('Thailand')
+  })
+
+  it('keeps one shared Booking shape across create, fetch, list and cancel', async () => {
+    const { db, app } = await createTestApp()
+    const fixture = await seedCatalog(db)
+    const guest = await verifiedUser(app, 'oneshape@example.com')
+
+    const created = await postBooking(app, guest, validBody(fixture))
+    const createdBody = await created.json()
+    const bookingId = createdBody.id
+
+    const fetched = await (
+      await app.handle(
+        new Request(`http://localhost/bookings/${bookingId}`, { headers: { cookie: guest.cookie } }),
+      )
+    ).json()
+    const listed = await (
+      await app.handle(
+        new Request('http://localhost/bookings', { headers: { cookie: guest.cookie } }),
+      )
+    ).json()
+    const cancelled = await (
+      await app.handle(
+        new Request(`http://localhost/bookings/${bookingId}/cancel`, {
+          method: 'POST',
+          headers: { cookie: guest.cookie },
+        }),
+      )
+    ).json()
+
+    const keys = (row: Record<string, unknown>) => Object.keys(row).sort()
+    expect(keys(createdBody)).toEqual(keys(fetched))
+    expect(keys(createdBody)).toEqual(keys(listed[0]))
+    expect(keys(createdBody)).toEqual(keys(cancelled))
+    expect(keys(createdBody)).toContain('countryName')
   })
 })
