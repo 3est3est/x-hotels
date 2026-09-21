@@ -9,7 +9,7 @@ import { Label, LabelText } from '../components/ui/label'
 import { api } from '../lib/api'
 import { useCountries, useResource } from '../lib/hooks'
 import { useT } from '../lib/i18n'
-import { mockHotelImage } from '../lib/mockImages'
+import { localHotelImage, mockHotelImage } from '../lib/mockImages'
 import { formatPrice, pricePerNight } from '../lib/prices'
 import type { Country, HotelDetail, HotelSummary } from '../lib/types'
 
@@ -198,7 +198,8 @@ export default function BookPage() {
                 <div className="overflow-hidden">
                   <HotelImage
                     src={row.hotel.images[0]?.url}
-                    fallback={mockHotelImage(row.hotel.id, 600, 400)}
+                    fallback={localHotelImage(row.countryName, row.regionName)}
+                    finalFallback={mockHotelImage(row.hotel.id, 600, 400)}
                     alt={row.hotel.name}
                     className="aspect-[16/10] w-full object-cover"
                   />

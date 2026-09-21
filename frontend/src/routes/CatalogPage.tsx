@@ -8,7 +8,7 @@ import { Input } from '../components/ui/input'
 import { Label, LabelText } from '../components/ui/label'
 import { useCountries, useHotels } from '../lib/hooks'
 import { useT } from '../lib/i18n'
-import { mockHotelImage } from '../lib/mockImages'
+import { localHotelImage, mockHotelImage } from '../lib/mockImages'
 
 /** Filter state lives in the URL so a filtered view is reloadable and shareable.
  *  checkIn/nights/guests ride along from the landing search and are carried
@@ -63,6 +63,13 @@ export default function CatalogPage() {
 
   const selectedCountry = countries.data?.find((c) => c.id === filters.countryId)
   const regions = selectedCountry?.regions ?? []
+
+  const regionGeo = new Map<number, { countryName: string; regionName: string }>()
+  for (const country of countries.data ?? []) {
+    for (const region of country.regions) {
+      regionGeo.set(region.id, { countryName: country.name, regionName: region.name })
+    }
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -154,7 +161,11 @@ export default function CatalogPage() {
                 <div className="overflow-hidden">
                   <HotelImage
                     src={hotel.images[0]?.url}
-                    fallback={mockHotelImage(hotel.id, 800, 500)}
+                    fallback={localHotelImage(
+                      regionGeo.get(hotel.regionId)?.countryName ?? '',
+                      regionGeo.get(hotel.regionId)?.regionName ?? '',
+                    )}
+                    finalFallback={mockHotelImage(hotel.id, 800, 500)}
                     alt={hotel.name}
                     className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                   />

@@ -8,7 +8,7 @@ import { Input } from '../components/ui/input'
 import { Label, LabelText } from '../components/ui/label'
 import { useCountries, useHotels } from '../lib/hooks'
 import { useT } from '../lib/i18n'
-import { mockHotelImage } from '../lib/mockImages'
+import { localHotelImage, mockHotelImage } from '../lib/mockImages'
 
 /**
  * Destination + country only. Dates, nights and guests are entered again at
@@ -125,6 +125,7 @@ export default function LandingPage() {
         ) : (
           (countries.data ?? []).map((country) => {
             const regionIds = new Set(country.regions.map((r) => r.id))
+            const regionById = new Map(country.regions.map((r) => [r.id, r.name]))
             const stays = (hotels.data ?? []).filter((h) => regionIds.has(h.regionId))
             if (stays.length === 0) return null
             return (
@@ -145,7 +146,8 @@ export default function LandingPage() {
                         <div className="overflow-hidden">
                           <HotelImage
                             src={hotel.images[0]?.url}
-                            fallback={mockHotelImage(hotel.id, 600, 400)}
+                            fallback={localHotelImage(country.name, regionById.get(hotel.regionId) ?? '')}
+                            finalFallback={mockHotelImage(hotel.id, 600, 400)}
                             alt={hotel.name}
                             className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                           />

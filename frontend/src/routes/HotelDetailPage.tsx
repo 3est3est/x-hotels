@@ -8,7 +8,7 @@ import { readDraft } from '../lib/bookingDraft'
 import { formatDate } from '../lib/format'
 import { useHotelDetail } from '../lib/hooks'
 import { useT } from '../lib/i18n'
-import { mockHotelImage, mockRoomImage } from '../lib/mockImages'
+import { localHotelImage, localRoomImage, mockHotelImage, mockRoomImage } from '../lib/mockImages'
 import { formatPrice, pricePerNight } from '../lib/prices'
 
 export default function HotelDetailPage() {
@@ -57,17 +57,19 @@ export default function HotelDetailPage() {
       <div className="rise rise-1 grid gap-4 sm:grid-cols-3">
         <HotelImage
           src={hero?.url}
-          fallback={mockHotelImage(hotel.id)}
+          fallback={localHotelImage(hotel.countryName, hotel.regionName)}
+          finalFallback={mockHotelImage(hotel.id)}
           alt={hotel.name}
           eager
           className="aspect-[16/10] w-full rounded-2xl object-cover sm:col-span-2 sm:aspect-auto sm:h-full sm:min-h-80"
         />
-        <div className="grid grid-rows-2 gap-4">
-          {rest.slice(0, 2).map((image, i) => (
+          <div className="grid grid-rows-2 gap-4">
+            {rest.slice(0, 2).map((image) => (
             <HotelImage
               key={image.url}
               src={image.url}
-              fallback={mockHotelImage(hotel.id, 600, 400 + i)}
+              fallback={localHotelImage(hotel.countryName, hotel.regionName)}
+              finalFallback={mockHotelImage(hotel.id, 600, 400)}
               alt={hotel.name}
               className="h-40 w-full rounded-2xl object-cover sm:h-full sm:min-h-0"
             />
@@ -89,7 +91,8 @@ export default function HotelDetailPage() {
               <li key={roomType.id} className="grid gap-5 py-7 sm:grid-cols-5 sm:gap-8">
                 <HotelImage
                   src={roomType.images[0]?.url}
-                  fallback={mockRoomImage(hotel.id, roomType.id)}
+                  fallback={localRoomImage(hotel.countryName, hotel.regionName, roomType.name)}
+                  finalFallback={mockRoomImage(hotel.id, roomType.id)}
                   alt={roomType.name}
                   className="aspect-[16/10] w-full rounded-2xl object-cover sm:col-span-2"
                 />

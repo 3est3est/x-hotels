@@ -1,9 +1,50 @@
 /**
- * Mock hotel photography until the owner supplies generated photos (Spec 0002,
- * Q8a). Keyed by hotel id so swaps are URL-only later; the database is untouched.
- * Every <img> in the app resolves through `HotelImage`, which falls back here
- * when the API image is missing or fails to load.
+ * Hotel photography resolution chain (Spec 0004):
+ *
+ * 1. Owner-supplied photos under `frontend/public/hotels/`
+ *    (`{country}/{region}/{room}.jpg`, plus `exterior.jpg` per branch).
+ * 2. Picsum mock when the local file is missing (HotelImage falls back
+ *    automatically on 404, so newly added photos light up with no code change).
+ *
+ * The database is untouched: API images still win when present.
  */
+
+const REGION_SLUG: Record<string, string> = {
+  Northern: 'north',
+  Northeastern: 'northeast',
+  Central: 'central',
+  Eastern: 'east',
+  Western: 'west',
+  Southern: 'south',
+  Jerusalem: 'jerusalem',
+  Haifa: 'haifa',
+  'Tel Aviv': 'tel-aviv',
+}
+
+function slug(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '')
+}
+
+function regionSlug(regionName: string): string {
+  return REGION_SLUG[regionName] ?? slug(regionName)
+}
+
+function branchDir(countryName: string, regionName: string): string {
+  return `/hotels/${slug(countryName)}/${regionSlug(regionName)}`
+}
+
+export function localRoomImage(
+  countryName: string,
+  regionName: string,
+  roomTypeName: string,
+): string {
+  return `${branchDir(countryName, regionName)}/${slug(roomTypeName)}.jpg`
+}
+
+export function localHotelImage(countryName: string, regionName: string): string {
+  return `${branchDir(countryName, regionName)}/exterior.jpg`
+}
+
 export function mockHotelImage(hotelId: number, width = 1200, height = 800): string {
   return `https://picsum.photos/seed/xhotel-${hotelId}/${width}/${height}`
 }
