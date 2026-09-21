@@ -1,6 +1,9 @@
 import { ArrowLeft, MapPin, Star, Users } from 'lucide-react'
-import { Link, useParams } from 'react-router'
+import { useMemo } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router'
+import { BookingForm } from '../components/BookingForm'
 import { ErrorState, LoadingState, NotFoundState } from '../components/StateMessages'
+import { readDraft } from '../lib/bookingDraft'
 import { formatDate } from '../lib/format'
 import { useHotelDetail } from '../lib/hooks'
 
@@ -9,6 +12,8 @@ export default function HotelDetailPage() {
   const id = Number(params.id)
   const valid = Number.isInteger(id) && id > 0
   const { data: hotel, isPending, error, notFound, reload } = useHotelDetail(id)
+  const [searchParams] = useSearchParams()
+  const draft = useMemo(() => readDraft(searchParams), [searchParams])
 
   if (!valid || notFound) {
     return (
@@ -80,6 +85,7 @@ export default function HotelDetailPage() {
                 <p className="flex items-center gap-1.5 text-sm text-neutral-300">
                   <Users size={16} aria-hidden /> Sleeps {roomType.capacity}
                 </p>
+                <BookingForm hotelId={hotel.id} roomType={roomType} draft={draft} />
               </li>
             ))}
           </ul>

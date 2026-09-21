@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
 import App from './App.tsx'
 import { RequireSession } from './lib/routes'
+import BookingsPage from './routes/BookingsPage'
 import CatalogPage from './routes/CatalogPage'
 import HotelDetailPage from './routes/HotelDetailPage'
 import LoginPage from './routes/LoginPage'
@@ -21,7 +22,10 @@ const router = createBrowserRouter([
       { path: 'login', element: <LoginPage /> },
       {
         element: <RequireSession />,
-        children: [{ path: 'verify', element: <VerifyPage /> }],
+        children: [
+          { path: 'verify', element: <VerifyPage /> },
+          { path: 'bookings', element: <BookingsPage /> },
+        ],
       },
     ],
   },
