@@ -62,10 +62,34 @@ export function localHotelImage(
   return [`${dir}/exterior.jpg`, `${dir}/exterior.jpeg`, ...rooms]
 }
 
+/**
+ * Remote stand-ins for slots with no owner photo yet: real hotel photography
+ * (verified live URLs), picked deterministically so a slot always shows the
+ * same image. The owner replaces them by dropping files into `public/hotels/`.
+ */
+const REMOTE_HOTEL_PHOTOS = [
+  '1566073771259-6a8506099945',
+  '1445019980597-93fa8acb246c',
+  '1542314831-068cd1dbfeeb',
+  '1551882547-ff40c63fe5fa',
+]
+
+const REMOTE_ROOM_PHOTOS = [
+  '1582719508461-905c673771fd',
+  '1611892440504-42a792e24d32',
+  '1590490360182-c33d57733427',
+  '1578683010236-d716f9a3f461',
+]
+
+function remotePhoto(pool: string[], seed: number, width: number, height: number): string {
+  const id = pool[Math.abs(seed) % pool.length]
+  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${width}&h=${height}&q=70`
+}
+
 export function mockHotelImage(hotelId: number, width = 1200, height = 800): string {
-  return `https://picsum.photos/seed/xhotel-${hotelId}/${width}/${height}`
+  return remotePhoto(REMOTE_HOTEL_PHOTOS, hotelId, width, height)
 }
 
 export function mockRoomImage(hotelId: number, roomTypeId: number, width = 800, height = 500): string {
-  return `https://picsum.photos/seed/xhotel-${hotelId}-room-${roomTypeId}/${width}/${height}`
+  return remotePhoto(REMOTE_ROOM_PHOTOS, hotelId * 31 + roomTypeId, width, height)
 }

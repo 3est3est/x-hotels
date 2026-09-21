@@ -85,7 +85,7 @@ export default function LandingPage() {
         <HotelImage
           sources={[
             '/hotels/thailand/central/suite.jpg',
-            'https://picsum.photos/seed/xhotel-hero/2400/1200',
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2400&h=1200&q=70',
           ]}
           alt={t.landing.heroAlt}
           eager
