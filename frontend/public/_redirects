@@ -1,0 +1,17 @@
+# Cloudflare Pages same-origin proxy to the Workers backend.
+#
+# The app always calls same-origin `/api/*` (see docs/adr/0004-react-vite-frontend.md),
+# mirroring `vite.config.ts` in development. Rules are evaluated top-down, so the
+# more specific auth rule must come first.
+#
+# 1. Better Auth lives under its own `/api/auth/*` basePath on the backend — keep it.
+# 2. Every business route (`/countries`, `/hotels`, `/bookings`, `/identity-verification`)
+#    is served at the root, so the app-facing `/api` prefix is stripped by `:splat`.
+#
+# The backend's `CORS_ORIGINS` stays empty: the browser only ever sees this origin.
+
+/api/auth/*  https://x-hotels-backend.kanompang450.workers.dev/api/auth/:splat  200
+/api/*       https://x-hotels-backend.kanompang450.workers.dev/:splat           200
+
+# SPA fallback: serve index.html for any client-side route.
+/*  /index.html  200
