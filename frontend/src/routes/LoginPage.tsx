@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { ErrorState } from '../components/StateMessages'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label, LabelText } from '../components/ui/label'
 import { authClient } from '../lib/auth'
 import { safeRedirect } from '../lib/redirect'
-
-const fieldClass =
-  'rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink placeholder:text-faint focus:border-ink focus:outline-none'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -40,35 +40,29 @@ export default function LoginPage() {
       {error && <ErrorState message={error} />}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          <span className="text-stone">Email</span>
-          <input
+        <Label>
+          <LabelText>Email</LabelText>
+          <Input
             type="email"
-            className={fieldClass}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
             required
           />
-        </label>
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          <span className="text-stone">Password</span>
-          <input
+        </Label>
+        <Label>
+          <LabelText>Password</LabelText>
+          <Input
             type="password"
-            className={fieldClass}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"
             required
           />
-        </label>
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-full bg-ink px-4 py-2.5 font-medium text-white transition hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-50"
-        >
+        </Label>
+        <Button type="submit" variant="primary" disabled={pending}>
           {pending ? 'Signing in…' : 'Sign in'}
-        </button>
+        </Button>
       </form>
 
       <p className="text-sm text-stone">

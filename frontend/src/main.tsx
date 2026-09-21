@@ -3,15 +3,16 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
 import App from './App.tsx'
-import { RequireSession } from './lib/routes'
+import { RequireManagement, RequireSession } from './lib/routes'
 import BookingsPage from './routes/BookingsPage'
 import CatalogPage from './routes/CatalogPage'
 import HotelDetailPage from './routes/HotelDetailPage'
 import LandingPage from './routes/LandingPage'
 import LoginPage from './routes/LoginPage'
+import ManagementPage from './routes/ManagementPage'
 import NotFoundPage from './routes/NotFoundPage'
+import ProfilePage from './routes/ProfilePage'
 import RegisterPage from './routes/RegisterPage'
-import VerifyPage from './routes/VerifyPage'
 
 const router = createBrowserRouter([
   {
@@ -26,9 +27,13 @@ const router = createBrowserRouter([
       {
         element: <RequireSession />,
         children: [
-          { path: 'verify', element: <VerifyPage /> },
           { path: 'bookings', element: <BookingsPage /> },
+          { path: 'profile', element: <ProfilePage /> },
         ],
+      },
+      {
+        element: <RequireManagement />,
+        children: [{ path: 'management', element: <ManagementPage /> }],
       },
       { path: '*', element: <NotFoundPage /> },
     ],

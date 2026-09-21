@@ -52,11 +52,9 @@ export function BookingForm({
 
     if (sessionPending) return
     if (!session?.user) {
-      navigate(`/login?redirect=${encodeURIComponent(returnPath())}`, { replace: true })
-      return
-    }
-    if (!session.user.verifiedAt) {
-      navigate(`/verify?redirect=${encodeURIComponent(returnPath())}`, { replace: true })
+      // ADR 0005: booking takes a plain session — anonymous guests register,
+      // no document step exists anywhere in the flow.
+      navigate(`/register?redirect=${encodeURIComponent(returnPath())}`, { replace: true })
       return
     }
 
