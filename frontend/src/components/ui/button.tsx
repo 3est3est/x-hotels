@@ -8,8 +8,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // The single gold accent: primary actions only.
-        primary: 'bg-gold px-5 py-2.5 text-ink hover:brightness-95',
+        primary: 'bg-ink px-5 py-2.5 text-white hover:bg-zinc-700',
         dark: 'bg-ink px-5 py-2.5 text-white hover:bg-zinc-700',
         outline: 'border border-hairline bg-card px-4 py-2 hover:border-ink',
         ghost: 'px-3 py-1.5 text-stone hover:text-ink',

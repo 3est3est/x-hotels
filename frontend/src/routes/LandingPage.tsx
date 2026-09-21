@@ -71,8 +71,8 @@ function SearchBar() {
 
 export default function LandingPage() {
   const t = useT()
+  const countries = useCountries()
   const hotels = useHotels({})
-  const featured = hotels.data?.slice(0, 4) ?? []
   const facts = [
     { title: t.landing.fact1Title, body: t.landing.fact1Body },
     { title: t.landing.fact2Title, body: t.landing.fact2Body },
@@ -107,45 +107,64 @@ export default function LandingPage() {
         <SearchBar />
       </div>
 
-      <section className="flex flex-col gap-6">
+      <section className="flex flex-col gap-10">
         <div className="flex items-end justify-between">
-          <h2 className="font-display text-3xl font-semibold tracking-tight">{t.landing.featured}</h2>
+          <h2 className="font-display text-3xl font-semibold tracking-tight">{t.landing.stays}</h2>
           <Link to="/hotels" className="text-sm font-medium text-ink underline">
             {t.landing.viewAll}
           </Link>
         </div>
-        {hotels.isPending ? (
+        {hotels.isPending || countries.isPending ? (
           <LoadingState label={t.common.loading} />
         ) : hotels.error ? (
           <ErrorState message={hotels.error} onRetry={hotels.reload} />
-        ) : featured.length === 0 ? (
+        ) : countries.error ? (
+          <ErrorState message={countries.error} onRetry={countries.reload} />
+        ) : (countries.data ?? []).length === 0 ? (
           <EmptyState>{t.landing.noFeatured}</EmptyState>
         ) : (
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.map((hotel) => (
-              <li key={hotel.id}>
-                <Link
-                  to={`/hotels/${hotel.id}`}
-                  className="group block h-full overflow-hidden rounded-2xl border border-hairline bg-card transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(24_24_27/0.10)]"
-                >
-                  <div className="overflow-hidden">
-                    <HotelImage
-                      src={hotel.images[0]?.url}
-                      fallback={mockHotelImage(hotel.id, 600, 400)}
-                      alt={hotel.name}
-                      className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-display text-xl leading-tight font-semibold tracking-tight">
-                      {hotel.name}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-sm text-stone">{hotel.description}</p>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          (countries.data ?? []).map((country) => {
+            const regionIds = new Set(country.regions.map((r) => r.id))
+            const stays = (hotels.data ?? []).filter((h) => regionIds.has(h.regionId))
+            if (stays.length === 0) return null
+            return (
+              <div key={country.id} className="flex flex-col gap-5">
+                <div className="flex items-baseline gap-3 border-b border-hairline pb-3">
+                  <h3 className="font-display text-2xl font-semibold tracking-tight">
+                    {country.name}
+                  </h3>
+                  <span className="text-sm text-faint">{t.landing.stayCount(stays.length)}</span>
+                </div>
+                <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {stays.map((hotel) => (
+                    <li key={hotel.id}>
+                      <Link
+                        to={`/hotels/${hotel.id}`}
+                        className="group block h-full overflow-hidden rounded-2xl border border-hairline bg-card transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(24_24_27/0.10)]"
+                      >
+                        <div className="overflow-hidden">
+                          <HotelImage
+                            src={hotel.images[0]?.url}
+                            fallback={mockHotelImage(hotel.id, 600, 400)}
+                            alt={hotel.name}
+                            className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                          />
+                        </div>
+                        <div className="p-4">
+                          <h4 className="font-display text-xl leading-tight font-semibold tracking-tight">
+                            {hotel.name}
+                          </h4>
+                          <p className="mt-1 line-clamp-2 text-sm text-stone">
+                            {hotel.description}
+                          </p>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )
+          })
         )}
       </section>
 

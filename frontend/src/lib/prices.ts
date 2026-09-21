@@ -12,8 +12,12 @@ const PRICE_BY_ROOM_TYPE: Record<string, number> = {
 
 export const CURRENCY = '฿'
 
-export function pricePerNight(roomTypeName: string): number {
-  return PRICE_BY_ROOM_TYPE[roomTypeName] ?? 6900
+export function pricePerNight(roomTypeName: string, hotelId = 0): number {
+  const base = PRICE_BY_ROOM_TYPE[roomTypeName] ?? 6900
+  // Deterministic per-hotel variance so rates differ branch to branch,
+  // exactly like a real group pricelist. Stable for a given hotel id.
+  const flux = ((hotelId * 7919) % 7) - 3
+  return base + flux * 300
 }
 
 export function formatPrice(amount: number): string {

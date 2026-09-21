@@ -68,7 +68,7 @@ export default function ManagementPage() {
               <span className="text-sm text-stone">{t.management.checkIns}</span>
               <span className="font-display text-4xl font-semibold">{stats.actualCheckIns}</span>
             </Card>
-            <Card className="flex flex-col gap-1 border-gold/40 bg-gold-bg p-5">
+            <Card className="flex flex-col gap-1 p-5">
               <span className="text-sm text-stone">{t.management.rate}</span>
               <span className="font-display text-4xl font-semibold">
                 {stats.checkInPercentage.toFixed(0)}

@@ -13,8 +13,8 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'Cormorant Garamond', 'Noto Serif Thai', 'Georgia', serif;
-  --font-sans: 'Outfit', 'Noto Sans Thai', 'system-ui', sans-serif;
+  --font-display: 'Cormorant Garamond', 'Thonburi', 'Noto Serif Thai', 'Georgia', serif;
+  --font-sans: 'Thonburi', 'Outfit', 'Noto Sans Thai', 'Tahoma', 'system-ui', sans-serif;
 
   /* Ink & paper neutrals. Paper is near-white, never cream.
      Ink is off-black, never pure #000. */
@@ -25,17 +25,8 @@
   --color-faint: #a1a1aa;
   --color-hairline: #e4e4e7;
 
-  /* The single accent: hotel gold. Reserved for primary actions,
-     active states, and the rating star. Nothing else. */
-  --color-gold: #e3a008;
-  --color-gold-deep: #b45309;
-  --color-gold-bg: #fef6e0;
-
-  /* Muted semantic states only. Desaturated, used in status pills and only there. */
-  --color-olive: #5f6f42;
-  --color-olive-bg: #eef1e6;
-  --color-slateblue: #46586c;
-  --color-slateblue-bg: #e9edf1;
+  /* The theme is black and white only. Status pills and the rating star
+     keep their original semantic colors. */
 }
 
 body {

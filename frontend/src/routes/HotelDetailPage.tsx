@@ -128,7 +128,7 @@ export default function HotelDetailPage() {
           <h2 className="font-display text-3xl font-semibold tracking-tight">{t.detail.reviews}</h2>
           {hotel.avgRating !== null ? (
             <span className="flex items-center gap-1.5 text-ink">
-              <Star size={17} className="text-gold" fill="currentColor" aria-hidden />
+              <Star size={17} className="text-amber-400" fill="currentColor" aria-hidden />
               <span className="font-display text-2xl font-semibold">
                 {hotel.avgRating.toFixed(1)}
               </span>
@@ -147,7 +147,7 @@ export default function HotelDetailPage() {
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className="flex items-center gap-0.5 text-gold"
+                    className="flex items-center gap-0.5 text-amber-400"
                     aria-label={t.detail.stars(review.rating)}
                   >
                     {Array.from({ length: review.rating }, (_, i) => (

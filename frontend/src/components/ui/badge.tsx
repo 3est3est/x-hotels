@@ -1,18 +1,18 @@
 import type { HTMLAttributes } from 'react'
 import { cn } from '../../lib/utils'
 
-/** Small status pill. Semantic tones only (muted olive/slate); gold never appears here. */
+/** Small status pill. Original semantic tones; monochrome everywhere else. */
 export function Badge({
   tone = 'neutral',
   className,
   ...props
 }: HTMLAttributes<HTMLSpanElement> & {
-  tone?: 'neutral' | 'olive' | 'slateblue'
+  tone?: 'neutral' | 'emerald' | 'sky'
 }) {
   const tones = {
     neutral: 'border-hairline bg-paper text-faint',
-    olive: 'border-olive/30 bg-olive-bg text-olive',
-    slateblue: 'border-slateblue/30 bg-slateblue-bg text-slateblue',
+    emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    sky: 'border-sky-200 bg-sky-50 text-sky-700',
   } as const
   return (
     <span

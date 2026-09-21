@@ -8,12 +8,12 @@ import { cn } from './lib/utils'
 
 /* Shape rule for the whole app: pill buttons, 16px cards, 12px inputs.
    One light theme only. Gold is the single accent (primary actions, active
-   states, rating star); muted olive/slate appear solely in status pills. */
+   states; status pills and the rating star keep original colors. */
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
     'text-sm font-medium transition hover:text-ink',
-    isActive ? 'text-ink underline decoration-gold decoration-2 underline-offset-4' : 'text-stone',
+    isActive ? 'text-ink underline decoration-ink decoration-2 underline-offset-4' : 'text-stone',
   )
 
 function SessionNav() {
@@ -55,7 +55,9 @@ function SessionNav() {
       <NavLink to="/profile" className={linkClass}>
         {t.nav.profile}
       </NavLink>
-      <span className="hidden max-w-44 truncate text-sm text-faint sm:inline">{user.email}</span>
+      <span className="hidden max-w-44 truncate text-sm font-medium text-ink sm:inline">
+        {user.name}
+      </span>
       <button
         type="button"
         className="flex items-center gap-1.5 text-sm font-medium text-stone transition hover:text-ink"
@@ -76,13 +78,13 @@ function App() {
     <div className="flex min-h-dvh flex-col bg-paper font-sans text-ink">
       <header className="border-b border-hairline bg-card">
         <div className="mx-auto flex h-17 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <NavLink to="/" className="font-display text-[26px] font-semibold tracking-tight">
-              X Hotels
-            </NavLink>
+          <NavLink to="/" className="font-display text-[26px] font-semibold tracking-tight">
+            X Hotels
+          </NavLink>
+          <div className="flex items-center gap-4">
+            <SessionNav />
             <LanguageToggle />
           </div>
-          <SessionNav />
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">

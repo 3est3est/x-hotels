@@ -8,9 +8,9 @@ import { useT } from '../lib/i18n'
 import type { Booking, BookingStatus } from '../lib/types'
 import { Badge } from '../components/ui/badge'
 
-function statusTone(status: BookingStatus): 'olive' | 'neutral' | 'slateblue' {
-  if (status === 'CONFIRMED') return 'olive'
-  if (status === 'CHECKED_IN') return 'slateblue'
+function statusTone(status: BookingStatus): 'emerald' | 'neutral' | 'sky' {
+  if (status === 'CONFIRMED') return 'emerald'
+  if (status === 'CHECKED_IN') return 'sky'
   return 'neutral'
 }
 
@@ -90,7 +90,7 @@ function BookingCard({
       </dl>
 
       {booking.checkedInAt && (
-        <p className="text-xs text-slateblue">
+        <p className="text-xs text-sky-700">
           {t.bookings.checkedInOn(formatDateTime(booking.checkedInAt))}
         </p>
       )}

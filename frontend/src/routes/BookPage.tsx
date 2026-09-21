@@ -9,23 +9,16 @@ import { Label, LabelText } from '../components/ui/label'
 import { api } from '../lib/api'
 import { useCountries, useResource } from '../lib/hooks'
 import { useT } from '../lib/i18n'
-import { mockRoomImage } from '../lib/mockImages'
+import { mockHotelImage } from '../lib/mockImages'
 import { formatPrice, pricePerNight } from '../lib/prices'
-import type { Country, HotelDetail } from '../lib/types'
+import type { Country, HotelDetail, HotelSummary } from '../lib/types'
 
-export type BookableRoom = {
-  hotelId: number
-  hotelName: string
+export type BookableHotel = {
+  hotel: HotelSummary
   countryId: number
   countryName: string
-  regionId: number
   regionName: string
-  roomTypeId: number
-  roomTypeName: string
-  description: string
-  capacity: number
-  imageUrl?: string
-  price: number
+  fromPrice: number
 }
 
 type Sort = 'recommended' | 'asc' | 'desc'
@@ -55,7 +48,7 @@ function useBookFilters() {
   }
 }
 
-function useBookableRooms(): ReturnType<typeof useResource<BookableRoom[]>> {
+function useBookableHotels(): ReturnType<typeof useResource<BookableHotel[]>> {
   const load = useCallback(async () => {
     const [countriesRes, hotelsRes] = await Promise.all([api.countries.get(), api.hotels.get()])
     if (countriesRes.error) throw countriesRes.error
@@ -78,28 +71,23 @@ function useBookableRooms(): ReturnType<typeof useResource<BookableRoom[]>> {
       }),
     )
 
-    const rooms: BookableRoom[] = []
-    for (const detail of details) {
-      if (!detail) continue
-      const geo = regionToCountry.get(detail.regionId)
-      for (const room of detail.roomTypes) {
-        rooms.push({
-          hotelId: detail.id,
-          hotelName: detail.name,
-          countryId: geo?.countryId ?? 0,
-          countryName: geo?.countryName ?? detail.countryName,
-          regionId: detail.regionId,
-          regionName: detail.regionName,
-          roomTypeId: room.id,
-          roomTypeName: room.name,
-          description: room.description,
-          capacity: room.capacity,
-          imageUrl: room.images[0]?.url,
-          price: pricePerNight(room.name),
-        })
-      }
-    }
-    return rooms
+    const rows: BookableHotel[] = []
+    hotels.forEach((hotel, i) => {
+      const detail = details[i]
+      if (!detail || detail.roomTypes.length === 0) return
+      const geo = regionToCountry.get(hotel.regionId)
+      const fromPrice = Math.min(
+        ...detail.roomTypes.map((room) => pricePerNight(room.name, hotel.id)),
+      )
+      rows.push({
+        hotel,
+        countryId: geo?.countryId ?? 0,
+        countryName: geo?.countryName ?? detail.countryName,
+        regionName: detail.regionName,
+        fromPrice,
+      })
+    })
+    return rows
   }, [])
   return useResource(load)
 }
@@ -108,25 +96,24 @@ export default function BookPage() {
   const t = useT()
   const filters = useBookFilters()
   const countries = useCountries()
-  const rooms = useBookableRooms()
+  const rows = useBookableHotels()
 
   const selectedCountry = countries.data?.find((c) => String(c.id) === filters.countryId)
   const regions = selectedCountry?.regions ?? []
 
-  const visible = (rooms.data ?? [])
-    .filter((room) => {
-      if (filters.countryId && String(room.countryId) !== filters.countryId) return false
-      if (filters.regionId && String(room.regionId) !== filters.regionId) return false
-      if (filters.q) {
-        const hay = `${room.hotelName} ${room.roomTypeName}`.toLowerCase()
-        if (!hay.includes(filters.q.toLowerCase())) return false
+  const visible = (rows.data ?? [])
+    .filter((row) => {
+      if (filters.countryId && String(row.countryId) !== filters.countryId) return false
+      if (filters.regionId && String(row.hotel.regionId) !== filters.regionId) return false
+      if (filters.q && !row.hotel.name.toLowerCase().includes(filters.q.toLowerCase())) {
+        return false
       }
       return true
     })
     .sort((a, b) => {
-      if (filters.sort === 'asc') return a.price - b.price
-      if (filters.sort === 'desc') return b.price - a.price
-      return a.hotelId - b.hotelId || a.price - b.price
+      if (filters.sort === 'asc') return a.fromPrice - b.fromPrice
+      if (filters.sort === 'desc') return b.fromPrice - a.fromPrice
+      return a.hotel.id - b.hotel.id
     })
 
   return (
@@ -194,42 +181,42 @@ export default function BookPage() {
         </Label>
       </Card>
 
-      {rooms.isPending ? (
+      {rows.isPending ? (
         <LoadingState label={t.book.loading} />
-      ) : rooms.error ? (
-        <ErrorState message={rooms.error} onRetry={rooms.reload} />
+      ) : rows.error ? (
+        <ErrorState message={rows.error} onRetry={rows.reload} />
       ) : visible.length === 0 ? (
         <EmptyState>{t.book.noMatch}</EmptyState>
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((room, index) => (
+          {visible.map((row, index) => (
             <li
-              key={`${room.hotelId}-${room.roomTypeId}`}
+              key={row.hotel.id}
               className={`rise ${index % 3 === 1 ? 'rise-1' : index % 3 === 2 ? 'rise-2' : ''}`}
             >
               <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-card transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(24_24_27/0.10)]">
                 <div className="overflow-hidden">
                   <HotelImage
-                    src={room.imageUrl}
-                    fallback={mockRoomImage(room.hotelId, room.roomTypeId, 600, 400)}
-                    alt={room.roomTypeName}
+                    src={row.hotel.images[0]?.url}
+                    fallback={mockHotelImage(row.hotel.id, 600, 400)}
+                    alt={row.hotel.name}
                     className="aspect-[16/10] w-full object-cover"
                   />
                 </div>
                 <div className="flex flex-1 flex-col gap-1 p-5">
                   <p className="flex items-center gap-1.5 text-xs text-faint">
                     <MapPin size={13} aria-hidden />
-                    {room.regionName}, {room.countryName}
+                    {row.regionName}, {row.countryName}
                   </p>
                   <h2 className="font-display text-2xl leading-tight font-semibold tracking-tight">
-                    {room.hotelName} · {room.roomTypeName}
+                    {row.hotel.name}
                   </h2>
                   <p className="text-sm text-stone">
-                    {t.bookings.guests}: {room.capacity} · {formatPrice(room.price)} {t.common.perNight}
+                    {t.book.from} {formatPrice(row.fromPrice)} {t.common.perNight}
                   </p>
                   <Link
-                    to={`/hotels/${room.hotelId}?book=${room.roomTypeId}`}
-                    className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-sm font-medium text-ink transition hover:brightness-95 active:scale-[0.98]"
+                    to={`/hotels/${row.hotel.id}`}
+                    className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 active:scale-[0.98]"
                   >
                     {t.book.select} <ArrowRight size={15} aria-hidden />
                   </Link>
