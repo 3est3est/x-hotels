@@ -83,22 +83,27 @@ export default function LandingPage() {
     <div className="flex flex-col gap-14">
       <section className="rise relative left-1/2 w-screen max-w-none -translate-x-1/2 overflow-hidden">
         <HotelImage
+          src="/hotels/thailand/central/suite.jpg"
           fallback="https://picsum.photos/seed/xhotel-hero/2400/1200"
           alt={t.landing.heroAlt}
           eager
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div
-          className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10"
+          className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent"
           aria-hidden
         />
-        <div className="relative flex min-h-[72vh] flex-col justify-end px-4 pt-24 pb-24 sm:px-6 sm:pb-28">
-          <h1 className="max-w-[16ch] font-display text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent" aria-hidden />
+        <div className="relative mx-auto flex min-h-[82vh] w-full max-w-6xl flex-col justify-center px-4 py-24 sm:px-6">
+          <p className="text-sm font-medium tracking-[0.2em] text-white/70 uppercase">
+            Thailand · Israel
+          </p>
+          <h1 className="mt-4 max-w-[14ch] font-display text-6xl font-semibold tracking-tight text-balance text-white sm:text-8xl">
             {t.landing.title}
           </h1>
-          <p className="mt-4 max-w-[48ch] text-lg text-white/85">{t.landing.subtitle}</p>
-          <div className="mt-6">
-            <Button asChild variant="primary" className="bg-white text-ink hover:bg-zinc-200">
+          <p className="mt-5 max-w-[46ch] text-lg text-white/85">{t.landing.subtitle}</p>
+          <div className="mt-8">
+            <Button asChild variant="primary" className="bg-white px-7 py-3 text-ink hover:bg-zinc-200">
               <Link to="/hotels">
                 {t.landing.browseAll} <ArrowRight aria-hidden />
               </Link>
