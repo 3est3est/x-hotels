@@ -4,20 +4,27 @@
 @import '@fontsource/outfit/400.css';
 @import '@fontsource/outfit/500.css';
 @import '@fontsource/outfit/600.css';
+@import '@fontsource/outfit/700.css';
 @import 'tailwindcss';
 
 @theme {
   --font-display: 'Cormorant Garamond', 'Georgia', serif;
   --font-sans: 'Outfit', 'system-ui', sans-serif;
 
-  /* Ink & Paper: neutral zinc monochrome. Paper is near-white, never cream.
+  /* Ink & paper neutrals. Paper is near-white, never cream.
      Ink is off-black, never pure #000. */
   --color-paper: #fafafa;
   --color-card: #ffffff;
-  --color-ink: #18181b;
+  --color-ink: #131315;
   --color-stone: #52525b;
   --color-faint: #a1a1aa;
   --color-hairline: #e4e4e7;
+
+  /* The single accent: hotel gold. Reserved for primary actions,
+     active states, and the rating star. Nothing else. */
+  --color-gold: #e3a008;
+  --color-gold-deep: #b45309;
+  --color-gold-bg: #fef6e0;
 
   /* Muted semantic states only. Desaturated, used in status pills and only there. */
   --color-olive: #5f6f42;

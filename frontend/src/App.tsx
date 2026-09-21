@@ -1,10 +1,18 @@
-import { LogOut, UserPlus } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { authClient, useSession } from './lib/auth'
+import { Button } from './components/ui/button'
+import { cn } from './lib/utils'
 
 /* Shape rule for the whole app: pill buttons, 16px cards, 12px inputs.
-   One light theme only. Ink is the single accent; muted olive/slate appear
-   solely in booking-status pills. */
+   One light theme only. Gold is the single accent (primary actions, active
+   states, rating star); muted olive/slate appear solely in status pills. */
+
+const linkClass = ({ isActive }: { isActive: boolean }) =>
+  cn(
+    'text-sm font-medium transition hover:text-ink',
+    isActive ? 'text-ink underline decoration-gold decoration-2 underline-offset-4' : 'text-stone',
+  )
 
 function SessionNav() {
   const { data, isPending } = useSession()
@@ -18,33 +26,33 @@ function SessionNav() {
   if (!user) {
     return (
       <nav className="flex items-center gap-5">
-        <NavLink to="/login" className="text-sm font-medium text-stone hover:text-ink">
+        <NavLink to="/login" className={linkClass}>
           Sign in
         </NavLink>
-        <NavLink
-          to="/register"
-          className="flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 active:scale-[0.98]"
-        >
-          <UserPlus size={16} aria-hidden /> Register
-        </NavLink>
+        <Button asChild variant="primary">
+          <NavLink to="/register">Register</NavLink>
+        </Button>
       </nav>
     )
   }
 
   return (
     <nav className="flex items-center gap-5">
-      <NavLink to="/bookings" className="text-sm font-medium text-stone hover:text-ink">
+      <NavLink to="/bookings" className={linkClass}>
         My bookings
       </NavLink>
-      {!user.verifiedAt && (
-        <NavLink to="/verify" className="text-sm font-medium text-stone hover:text-ink">
-          Verify identity
+      {user.role === 'management' && (
+        <NavLink to="/management" className={linkClass}>
+          Dashboard
         </NavLink>
       )}
+      <NavLink to="/profile" className={linkClass}>
+        Profile
+      </NavLink>
       <span className="hidden max-w-44 truncate text-sm text-faint sm:inline">{user.email}</span>
       <button
         type="button"
-        className="flex items-center gap-1.5 text-sm font-medium text-stone hover:text-ink"
+        className="flex items-center gap-1.5 text-sm font-medium text-stone transition hover:text-ink"
         onClick={async () => {
           await authClient.signOut()
           navigate('/')
