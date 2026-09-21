@@ -1,4 +1,4 @@
-import { CheckCircle2, ShieldCheck } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { ErrorState } from '../components/StateMessages'
@@ -10,11 +10,11 @@ import type { DocumentType } from '../lib/types'
 const HINTS: Record<DocumentType, { placeholder: string; hint: string }> = {
   id_card: {
     placeholder: '1234567890121',
-    hint: 'Your national ID card number. Digits only is fine — spaces and dashes are ignored.',
+    hint: 'Your national ID card number. Digits only is fine. Spaces and dashes are ignored.',
   },
   passport: {
     placeholder: 'AB123456',
-    hint: 'Passport number, 5–15 letters and digits. Letters are upper-cased by the server.',
+    hint: 'Passport number, 5 to 15 letters and digits. Letters are upper-cased by the server.',
   },
 }
 
@@ -55,53 +55,41 @@ export default function VerifyPage() {
   const hint = HINTS[documentType]
 
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-6">
-      <div className="flex items-center gap-2">
-        <ShieldCheck size={22} aria-hidden />
-        <h1 className="text-2xl font-semibold">Verify your identity</h1>
+    <div className="rise mx-auto flex w-full max-w-md flex-col gap-6 py-6">
+      <div>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">Verify your identity</h1>
+        <p className="mt-2 text-stone">
+          {verified
+            ? 'Your stay can be booked. Details below.'
+            : 'Booking requires a verified identity. Enter one document number. Nothing is uploaded.'}
+        </p>
       </div>
 
-      {verified ? (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 rounded-lg border border-emerald-900/60 bg-emerald-950/40 p-4 text-emerald-300">
-            <CheckCircle2 size={18} aria-hidden />
-            <span>
-              Your identity is verified
-              {session?.user?.idDocumentType && session.user.idDocumentNumber
-                ? ` (${session.user.idDocumentType === 'id_card' ? 'ID card' : 'Passport'} ending ${session.user.idDocumentNumber.slice(-4)})`
-                : ''}
-              .
-            </span>
-          </div>
-          <Link
-            to="/"
-            className="rounded-md bg-white px-4 py-2 text-center font-medium text-neutral-900 hover:bg-neutral-200"
-          >
-            Browse hotels to book
-          </Link>
-          <p className="text-sm text-neutral-400">
-            Need to re-submit? Enter a different document below — it replaces the verified record.
-          </p>
+      {verified && (
+        <div className="flex items-center gap-2.5 rounded-2xl border border-olive/30 bg-olive-bg p-4 text-sm">
+          <CheckCircle2 size={18} className="shrink-0 text-olive" aria-hidden />
+          <span>
+            Identity verified
+            {session?.user?.idDocumentType && session.user.idDocumentNumber
+              ? ` (${session.user.idDocumentType === 'id_card' ? 'ID card' : 'Passport'} ending ${session.user.idDocumentNumber.slice(-4)})`
+              : ''}
+            .
+          </span>
         </div>
-      ) : (
-        <p className="text-neutral-400">
-          Booking a room type requires a verified identity. Enter one document number — nothing is
-          uploaded.
-        </p>
       )}
 
       {error && <ErrorState message={error} />}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <fieldset className="flex gap-2">
+        <fieldset className="grid grid-cols-2 gap-2">
           <legend className="sr-only">Document type</legend>
           {(Object.keys(HINTS) as DocumentType[]).map((type) => (
             <label
               key={type}
-              className={`flex-1 cursor-pointer rounded-md border px-3 py-2 text-center text-sm ${
+              className={`cursor-pointer rounded-full border px-3 py-2.5 text-center text-sm font-medium transition ${
                 documentType === type
-                  ? 'border-white bg-neutral-800 text-white'
-                  : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'
+                  ? 'border-ink bg-ink text-white'
+                  : 'border-hairline bg-card text-stone hover:border-stone'
               }`}
             >
               <input
@@ -116,27 +104,36 @@ export default function VerifyPage() {
           ))}
         </fieldset>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-400">Document number</span>
+        <label className="flex flex-col gap-2 text-sm font-medium">
+          <span className="text-stone">Document number</span>
           <input
-            className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 font-mono text-neutral-100"
+            className="rounded-xl border border-hairline bg-card px-3 py-2.5 tracking-wider text-ink placeholder:text-faint focus:border-ink focus:outline-none"
             value={documentNumber}
             onChange={(event) => setDocumentNumber(event.target.value)}
             placeholder={hint.placeholder}
             autoComplete="off"
             required
           />
-          <span className="text-xs text-neutral-500">{hint.hint}</span>
+          <span className="text-xs font-normal text-faint">{hint.hint}</span>
         </label>
 
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-white px-4 py-2 font-medium text-neutral-900 hover:bg-neutral-200 disabled:opacity-50"
+          className="rounded-full bg-ink px-4 py-2.5 font-medium text-white transition hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-50"
         >
           {pending ? 'Verifying…' : verified ? 'Re-verify' : 'Verify identity'}
         </button>
       </form>
+
+      {verified && (
+        <div className="flex flex-col gap-2 border-t border-hairline pt-5 text-sm text-stone">
+          <p>Need to use a different document? Submit a new number above. It replaces the verified record.</p>
+          <Link to="/" className="font-medium text-ink underline">
+            Browse hotels to book
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

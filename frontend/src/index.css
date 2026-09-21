@@ -1,1 +1,74 @@
+@import '@fontsource/cormorant-garamond/500.css';
+@import '@fontsource/cormorant-garamond/600.css';
+@import '@fontsource/cormorant-garamond/500-italic.css';
+@import '@fontsource/outfit/400.css';
+@import '@fontsource/outfit/500.css';
+@import '@fontsource/outfit/600.css';
 @import 'tailwindcss';
+
+@theme {
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-sans: 'Outfit', 'system-ui', sans-serif;
+
+  /* Ink & Paper: neutral zinc monochrome. Paper is near-white, never cream.
+     Ink is off-black, never pure #000. */
+  --color-paper: #fafafa;
+  --color-card: #ffffff;
+  --color-ink: #18181b;
+  --color-stone: #52525b;
+  --color-faint: #a1a1aa;
+  --color-hairline: #e4e4e7;
+
+  /* Muted semantic states only. Desaturated, used in status pills and only there. */
+  --color-olive: #5f6f42;
+  --color-olive-bg: #eef1e6;
+  --color-slateblue: #46586c;
+  --color-slateblue-bg: #e9edf1;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Entrance: fade-up once per mount. transform + opacity only. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.rise-1 {
+  animation-delay: 0.05s;
+}
+.rise-2 {
+  animation-delay: 0.12s;
+}
+.rise-3 {
+  animation-delay: 0.19s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .rise-1,
+  .rise-2,
+  .rise-3 {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

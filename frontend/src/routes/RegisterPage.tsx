@@ -4,6 +4,9 @@ import { ErrorState } from '../components/StateMessages'
 import { authClient } from '../lib/auth'
 import { safeRedirect } from '../lib/redirect'
 
+const fieldClass =
+  'rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink placeholder:text-faint focus:border-ink focus:outline-none'
+
 export default function RegisterPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -29,41 +32,41 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-sm flex-col gap-6">
+    <div className="rise mx-auto flex w-full max-w-sm flex-col gap-6 py-6">
       <div>
-        <h1 className="text-2xl font-semibold">Create your account</h1>
-        <p className="mt-1 text-neutral-400">Register to verify your identity and book a hotel.</p>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">Create your account</h1>
+        <p className="mt-2 text-stone">Register to verify your identity and book a stay.</p>
       </div>
 
       {error && <ErrorState message={error} />}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-400">Name</span>
+        <label className="flex flex-col gap-2 text-sm font-medium">
+          <span className="text-stone">Name</span>
           <input
-            className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100"
+            className={fieldClass}
             value={name}
             onChange={(event) => setName(event.target.value)}
             autoComplete="name"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-400">Email</span>
+        <label className="flex flex-col gap-2 text-sm font-medium">
+          <span className="text-stone">Email</span>
           <input
             type="email"
-            className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100"
+            className={fieldClass}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
             required
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-400">Password</span>
+        <label className="flex flex-col gap-2 text-sm font-medium">
+          <span className="text-stone">Password</span>
           <input
             type="password"
-            className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100"
+            className={fieldClass}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="new-password"
@@ -74,15 +77,15 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-white px-4 py-2 font-medium text-neutral-900 hover:bg-neutral-200 disabled:opacity-50"
+          className="rounded-full bg-ink px-4 py-2.5 font-medium text-white transition hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-50"
         >
           {pending ? 'Creating account…' : 'Create account'}
         </button>
       </form>
 
-      <p className="text-sm text-neutral-400">
+      <p className="text-sm text-stone">
         Already have an account?{' '}
-        <Link to={loginHref} className="text-white underline">
+        <Link to={loginHref} className="font-medium text-ink underline">
           Sign in
         </Link>
       </p>

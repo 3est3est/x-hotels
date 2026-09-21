@@ -35,6 +35,9 @@ function useFilters() {
   }
 }
 
+const inputClass =
+  'rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink focus:border-ink focus:outline-none disabled:opacity-50'
+
 export default function CatalogPage() {
   const filters = useFilters()
   const countries = useCountries()
@@ -48,17 +51,21 @@ export default function CatalogPage() {
   const regions = selectedCountry?.regions ?? []
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Find a hotel</h1>
-        <p className="mt-1 text-neutral-400">Browse the X Hotels group by country, region or name.</p>
+    <div className="flex flex-col gap-8">
+      <div className="rise max-w-xl">
+        <h1 className="font-display text-5xl font-semibold tracking-tight text-balance">
+          Find your hotel
+        </h1>
+        <p className="mt-3 max-w-[52ch] text-stone">
+          Every X Hotels branch, from Bangkok to Tel Aviv. Choose a country to begin.
+        </p>
       </div>
 
-      <div className="grid gap-3 rounded-lg border border-neutral-800 bg-neutral-900 p-4 sm:grid-cols-3">
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-400">Country</span>
+      <div className="rise rise-1 grid gap-4 rounded-2xl border border-hairline bg-card p-4 shadow-[0_1px_2px_rgb(24_24_27/0.04)] sm:grid-cols-3 sm:p-5">
+        <label className="flex flex-col gap-2 text-sm font-medium">
+          <span className="text-stone">Country</span>
           <select
-            className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100"
+            className={inputClass}
             value={filters.rawCountryId}
             onChange={(event) => {
               filters.update({ countryId: event.target.value, regionId: '' })
@@ -74,10 +81,10 @@ export default function CatalogPage() {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-400">Region</span>
+        <label className="flex flex-col gap-2 text-sm font-medium">
+          <span className="text-stone">Region</span>
           <select
-            className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 disabled:opacity-50"
+            className={inputClass}
             value={filters.rawRegionId}
             onChange={(event) => filters.update({ regionId: event.target.value })}
             disabled={!filters.countryId || regions.length === 0}
@@ -91,13 +98,13 @@ export default function CatalogPage() {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="text-neutral-400">Search</span>
+        <label className="flex flex-col gap-2 text-sm font-medium">
+          <span className="text-stone">Search</span>
           <div className="relative">
-            <Search size={16} className="absolute top-2.5 left-3 text-neutral-500" aria-hidden />
+            <Search size={16} className="absolute top-3 left-3 text-faint" aria-hidden />
             <input
               type="search"
-              className="w-full rounded-md border border-neutral-700 bg-neutral-950 py-2 pr-3 pl-9 text-neutral-100"
+              className={`${inputClass} w-full pr-3 pl-9`}
               placeholder="Hotel name"
               value={filters.rawQ}
               onChange={(event) => filters.update({ q: event.target.value })}
@@ -106,39 +113,46 @@ export default function CatalogPage() {
         </label>
       </div>
 
-      {countries.error && (
-        <ErrorState message={countries.error} onRetry={countries.reload} />
-      )}
+      {countries.error && <ErrorState message={countries.error} onRetry={countries.reload} />}
 
       {hotels.isPending ? (
         <LoadingState label="Loading hotels…" />
       ) : hotels.error ? (
         <ErrorState message={hotels.error} onRetry={hotels.reload} />
       ) : hotels.data && hotels.data.length === 0 ? (
-        <EmptyState>No hotels match your filters.</EmptyState>
+        <EmptyState>
+          No hotels match your filters.{' '}
+          <Link to="/" className="font-medium text-ink underline">
+            Clear the search
+          </Link>
+        </EmptyState>
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {hotels.data?.map((hotel) => (
-            <li key={hotel.id}>
+        <ul className="grid gap-6 sm:grid-cols-2">
+          {hotels.data?.map((hotel, index) => (
+            <li key={hotel.id} className={`rise ${index % 3 === 1 ? 'rise-1' : index % 3 === 2 ? 'rise-2' : ''}`}>
               <Link
                 to={`/hotels/${hotel.id}`}
-                className="block h-full overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900 transition hover:border-neutral-600"
+                className="group block h-full overflow-hidden rounded-2xl border border-hairline bg-card transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(24_24_27/0.10)]"
               >
                 {hotel.images[0] ? (
-                  <img
-                    src={hotel.images[0].url}
-                    alt={hotel.name}
-                    className="h-44 w-full object-cover"
-                    loading="lazy"
-                  />
+                  <div className="overflow-hidden">
+                    <img
+                      src={hotel.images[0].url}
+                      alt={hotel.name}
+                      className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                      loading="lazy"
+                    />
+                  </div>
                 ) : (
-                  <div className="flex h-44 items-center justify-center bg-neutral-800 text-neutral-500">
+                  <div className="flex aspect-[16/10] items-center justify-center bg-paper text-faint">
                     No image
                   </div>
                 )}
-                <div className="p-4">
-                  <h2 className="text-lg font-medium">{hotel.name}</h2>
-                  <p className="mt-1 line-clamp-2 text-sm text-neutral-400">{hotel.description}</p>
+                <div className="p-5">
+                  <h2 className="font-display text-[26px] leading-tight font-semibold tracking-tight">
+                    {hotel.name}
+                  </h2>
+                  <p className="mt-2 line-clamp-2 text-[15px] text-stone">{hotel.description}</p>
                 </div>
               </Link>
             </li>

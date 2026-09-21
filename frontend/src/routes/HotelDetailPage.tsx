@@ -18,7 +18,7 @@ export default function HotelDetailPage() {
   if (!valid || notFound) {
     return (
       <NotFoundState title="Hotel not found">
-        <Link to="/" className="underline hover:text-white">
+        <Link to="/" className="font-medium text-ink underline">
           Back to all hotels
         </Link>
       </NotFoundState>
@@ -29,94 +29,130 @@ export default function HotelDetailPage() {
   if (error) return <ErrorState message={error} onRetry={reload} />
   if (!hotel) return null
 
-  return (
-    <div className="flex flex-col gap-8">
-      <Link to="/" className="flex items-center gap-1.5 text-sm text-neutral-400 hover:text-white">
-        <ArrowLeft size={16} aria-hidden /> All hotels
-      </Link>
+  const [hero, ...rest] = hotel.images
 
-      <section className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold">{hotel.name}</h1>
-          <p className="mt-1 flex items-center gap-1.5 text-neutral-400">
-            <MapPin size={16} aria-hidden />
-            {hotel.regionName}, {hotel.countryName}
-          </p>
-        </div>
-        <p className="text-neutral-300">{hotel.description}</p>
-        {hotel.images.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {hotel.images.map((image) => (
+  return (
+    <div className="flex flex-col gap-12">
+      <div className="rise">
+        <Link
+          to="/"
+          className="flex items-center gap-1.5 text-sm font-medium text-stone hover:text-ink"
+        >
+          <ArrowLeft size={16} aria-hidden /> All hotels
+        </Link>
+        <h1 className="mt-4 font-display text-5xl font-semibold tracking-tight text-balance sm:text-6xl">
+          {hotel.name}
+        </h1>
+        <p className="mt-3 flex items-center gap-1.5 text-stone">
+          <MapPin size={16} aria-hidden />
+          {hotel.regionName}, {hotel.countryName}
+        </p>
+      </div>
+
+      {hero && (
+        <div className="rise rise-1 grid gap-4 sm:grid-cols-3">
+          <img
+            src={hero.url}
+            alt={hotel.name}
+            className="aspect-[16/10] w-full rounded-2xl object-cover sm:col-span-2 sm:aspect-auto sm:h-full sm:min-h-80"
+          />
+          <div className="grid grid-rows-2 gap-4">
+            {rest.slice(0, 2).map((image) => (
               <img
                 key={image.url}
                 src={image.url}
                 alt={hotel.name}
-                className="h-56 w-full rounded-lg object-cover"
+                className="h-40 w-full rounded-2xl object-cover sm:h-full sm:min-h-0"
                 loading="lazy"
               />
             ))}
           </div>
-        )}
-      </section>
+        </div>
+      )}
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">Room types</h2>
+      <p className="rise rise-2 max-w-[65ch] text-lg leading-relaxed text-stone">
+        {hotel.description}
+      </p>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="font-display text-3xl font-semibold tracking-tight">Room types</h2>
         {hotel.roomTypes.length === 0 ? (
-          <p className="text-neutral-400">No room types listed for this hotel yet.</p>
+          <p className="text-stone">No room types listed for this hotel yet.</p>
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="flex flex-col divide-y divide-hairline">
             {hotel.roomTypes.map((roomType) => (
-              <li
-                key={roomType.id}
-                className="flex flex-col gap-3 rounded-lg border border-neutral-800 bg-neutral-900 p-4"
-              >
-                {roomType.images[0] && (
+              <li key={roomType.id} className="grid gap-5 py-7 sm:grid-cols-5 sm:gap-8">
+                {roomType.images[0] ? (
                   <img
                     src={roomType.images[0].url}
                     alt={roomType.name}
-                    className="h-36 w-full rounded-md object-cover"
+                    className="aspect-[16/10] w-full rounded-2xl object-cover sm:col-span-2"
                     loading="lazy"
                   />
+                ) : (
+                  <div className="flex aspect-[16/10] items-center justify-center rounded-2xl bg-paper text-faint sm:col-span-2">
+                    No image
+                  </div>
                 )}
-                <div>
-                  <h3 className="font-medium">{roomType.name}</h3>
-                  <p className="mt-1 text-sm text-neutral-400">{roomType.description}</p>
+                <div className="flex flex-col gap-3 sm:col-span-3">
+                  <div>
+                    <h3 className="font-display text-2xl font-semibold tracking-tight">
+                      {roomType.name}
+                    </h3>
+                    <p className="mt-1.5 max-w-[60ch] text-[15px] leading-relaxed text-stone">
+                      {roomType.description}
+                    </p>
+                  </div>
+                  <p className="flex items-center gap-1.5 text-sm text-stone">
+                    <Users size={15} aria-hidden /> Sleeps {roomType.capacity}
+                  </p>
+                  <div className="mt-1 max-w-sm">
+                    <BookingForm hotelId={hotel.id} roomType={roomType} draft={draft} />
+                  </div>
                 </div>
-                <p className="flex items-center gap-1.5 text-sm text-neutral-300">
-                  <Users size={16} aria-hidden /> Sleeps {roomType.capacity}
-                </p>
-                <BookingForm hotelId={hotel.id} roomType={roomType} draft={draft} />
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-semibold">Reviews</h2>
+      <section className="flex flex-col gap-5">
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <h2 className="font-display text-3xl font-semibold tracking-tight">Guest reviews</h2>
           {hotel.avgRating !== null ? (
-            <span className="flex items-center gap-1 text-amber-400">
-              <Star size={16} fill="currentColor" aria-hidden />
-              {hotel.avgRating.toFixed(1)} ({hotel.reviews.length})
+            <span className="flex items-center gap-1.5 text-ink">
+              <Star size={17} fill="currentColor" aria-hidden />
+              <span className="font-display text-2xl font-semibold">
+                {hotel.avgRating.toFixed(1)}
+              </span>
+              <span className="text-sm text-faint">
+                from {hotel.reviews.length} {hotel.reviews.length === 1 ? 'stay' : 'stays'}
+              </span>
             </span>
           ) : (
-            <span className="text-sm text-neutral-500">No reviews yet</span>
+            <span className="text-sm text-faint">No reviews yet</span>
           )}
         </div>
         {hotel.reviews.length > 0 && (
-          <ul className="flex flex-col gap-3">
+          <ul className="grid gap-4 sm:grid-cols-2">
             {hotel.reviews.map((review) => (
-              <li key={review.id} className="rounded-lg border border-neutral-800 bg-neutral-900 p-4">
-                <div className="flex items-center gap-1 text-amber-400">
-                  {Array.from({ length: review.rating }, (_, i) => (
-                    <Star key={i} size={14} fill="currentColor" aria-hidden />
-                  ))}
-                  <span className="ml-1 text-xs text-neutral-500">
-                    {formatDate(review.createdAt)}
+              <li
+                key={review.id}
+                className="flex flex-col gap-2.5 rounded-2xl border border-hairline bg-card p-5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-0.5 text-ink" aria-label={`${review.rating} out of 5 stars`}>
+                    {Array.from({ length: review.rating }, (_, i) => (
+                      <Star key={i} size={14} fill="currentColor" aria-hidden />
+                    ))}
                   </span>
+                  <span className="text-xs text-faint">{formatDate(review.createdAt)}</span>
                 </div>
-                {review.message && <p className="mt-2 text-neutral-300">{review.message}</p>}
+                {review.message ? (
+                  <p className="text-[15px] leading-relaxed">{review.message}</p>
+                ) : (
+                  <p className="text-sm text-faint">Rated without a written review.</p>
+                )}
               </li>
             ))}
           </ul>
