@@ -21,14 +21,16 @@ const validBody = (fixture: BranchFixture, overrides: Record<string, unknown> = 
 })
 
 describe('booking lifecycle', () => {
-  it('rejects an unverified guest', async () => {
+  it('accepts a signed-in guest without verification (ADR 0005)', async () => {
     const { db, app } = await createTestApp()
     const fixture = await seedCatalog(db)
-    const unverified = await signUp(app, 'unverified@example.com')
+    const guest = await signUp(app, 'unverified@example.com')
 
-    const res = await postBooking(app, unverified, validBody(fixture))
+    const res = await postBooking(app, guest, validBody(fixture))
 
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(201)
+    const body = await res.json()
+    expect(body.status).toBe('CONFIRMED')
   })
 
   it('creates a confirmed booking for a verified guest', async () => {

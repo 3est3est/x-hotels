@@ -136,7 +136,7 @@ describe('verification by document number', () => {
     expect(cookie).toContain('better-auth.session_token=')
   })
 
-  it('keeps bookings gated on verification, and a rejected number never books', async () => {
+  it('a rejected number never verifies, and booking needs no verification (ADR 0005)', async () => {
     const { db, app, submit } = await setup()
     const { hotelId, roomTypeId } = await seedCatalog(db)
 
@@ -150,6 +150,6 @@ describe('verification by document number', () => {
         body: JSON.stringify({ hotelId, roomTypeId, numGuests: 2, checkInDate: '2026-12-01', nights: 3 }),
       }),
     )
-    expect(booking.status).toBe(403)
+    expect(booking.status).toBe(201)
   })
 })

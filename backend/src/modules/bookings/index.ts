@@ -21,7 +21,9 @@ export function bookings({ db, auth }: AppContext) {
         body: createBookingBody,
         response: createBookingResponse,
         detail: { tags: ['bookings'] },
-        session: 'verified',
+        // ADR 0005: booking takes a plain signed-in session — the verified
+        // gate (FR-06 flow) no longer fronts the guest path.
+        session: true,
       },
     )
     .get('/bookings', ({ user }) => service.listBookings(db, user.id), {
@@ -42,7 +44,8 @@ export function bookings({ db, auth }: AppContext) {
         params: idParams,
         response: cancelBookingResponse,
         detail: { tags: ['bookings'] },
-        session: 'verified',
+        // ADR 0005: same plain-session rule as creation.
+        session: true,
       },
     )
 }
