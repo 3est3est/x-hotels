@@ -23,17 +23,12 @@ export function readDraft(params: URLSearchParams): BookingDraft {
   }
 }
 
-export function draftParams(
-  roomTypeId: number,
-  guests: number,
-  checkIn: string,
-  nights: number,
-): string {
+export function draftParams(draft: Required<BookingDraft>): string {
   const params = new URLSearchParams({
-    book: String(roomTypeId),
-    guests: String(guests),
-    checkIn,
-    nights: String(nights),
+    book: String(draft.roomTypeId),
+    guests: String(draft.guests),
+    checkIn: draft.checkIn ?? '',
+    nights: String(draft.nights),
   })
   return params.toString()
 }

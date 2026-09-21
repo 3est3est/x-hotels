@@ -1,6 +1,6 @@
 import { CheckCircle2, ShieldCheck } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { ErrorState } from '../components/StateMessages'
 import { api, errorMessage } from '../lib/api'
 import { useSession } from '../lib/auth'
@@ -10,7 +10,7 @@ import type { DocumentType } from '../lib/types'
 const HINTS: Record<DocumentType, { placeholder: string; hint: string }> = {
   id_card: {
     placeholder: '1234567890121',
-    hint: 'Thai national ID (13 digits) or Israeli Teudat Zehut (9 digits). Digits only is fine — spaces and dashes are ignored.',
+    hint: 'Your national ID card number. Digits only is fine — spaces and dashes are ignored.',
   },
   passport: {
     placeholder: 'AB123456',
@@ -21,6 +21,7 @@ const HINTS: Record<DocumentType, { placeholder: string; hint: string }> = {
 export default function VerifyPage() {
   const { data: session, refetch } = useSession()
   const navigate = useNavigate()
+  const location = useLocation()
   const [params] = useSearchParams()
   const redirect = safeRedirect(params.get('redirect'))
   const [documentType, setDocumentType] = useState<DocumentType>('id_card')
@@ -38,7 +39,8 @@ export default function VerifyPage() {
     setPending(false)
 
     if (response.status === 401) {
-      navigate(`/login?redirect=${encodeURIComponent('/verify')}`, { replace: true })
+      const here = `${location.pathname}${location.search}`
+      navigate(`/login?redirect=${encodeURIComponent(here)}`, { replace: true })
       return
     }
     if (response.error) {
@@ -83,7 +85,7 @@ export default function VerifyPage() {
         </div>
       ) : (
         <p className="text-neutral-400">
-          Booking a room requires a verified identity. Enter one document number — nothing is
+          Booking a room type requires a verified identity. Enter one document number — nothing is
           uploaded.
         </p>
       )}

@@ -39,7 +39,7 @@ export function BookingForm({
   const canEnter = guests >= 1 && nights >= 1 && /^\d{4}-\d{2}-\d{2}$/.test(checkIn)
 
   function returnPath(): string {
-    const query = draftParams(roomType.id, guests, checkIn, nights)
+    const query = draftParams({ roomTypeId: roomType.id, guests, checkIn, nights })
     return `${location.pathname}?${query}`
   }
 
@@ -77,10 +77,10 @@ export function BookingForm({
   if (!open) {
     return (
       <Link
-        to={`?${draftParams(roomType.id, guests, checkIn, nights)}`}
+        to={`?${draftParams({ roomTypeId: roomType.id, guests, checkIn, nights })}`}
         className="rounded-md border border-neutral-700 px-3 py-2 text-center text-sm hover:border-neutral-500"
       >
-        Book this room
+        Book this room type
       </Link>
     )
   }

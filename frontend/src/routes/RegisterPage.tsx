@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const redirect = safeRedirect(params.get('redirect'))
+  const loginHref = `/login?redirect=${encodeURIComponent(redirect)}`
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -81,7 +82,7 @@ export default function RegisterPage() {
 
       <p className="text-sm text-neutral-400">
         Already have an account?{' '}
-        <Link to="/login" className="text-white underline">
+        <Link to={loginHref} className="text-white underline">
           Sign in
         </Link>
       </p>

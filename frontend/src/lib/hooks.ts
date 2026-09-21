@@ -65,24 +65,25 @@ export function useHotels(filters: HotelFilters): Resource<HotelSummary[]> {
 export type HotelDetailState = Resource<HotelDetail> & { notFound: boolean }
 
 export function useHotelDetail(id: number): HotelDetailState {
-  const [notFound, setNotFound] = useState(false)
+  // Keyed by id so navigating unknown-id → valid-id never flashes "not found".
+  const [notFoundId, setNotFoundId] = useState<number | null>(null)
   const valid = Number.isInteger(id) && id > 0
   const load = useCallback(async () => {
     if (!valid) {
-      setNotFound(true)
+      setNotFoundId(id)
       return null
     }
     const response = await api.hotels({ id }).get()
     if (response.error) {
       if (response.status === 404) {
-        setNotFound(true)
+        setNotFoundId(id)
         return null
       }
       throw response.error
     }
-    setNotFound(false)
+    setNotFoundId((current) => (current === id ? null : current))
     return response.data
   }, [id, valid])
   const resource = useResource(load)
-  return { ...resource, notFound }
+  return { ...resource, notFound: notFoundId === id }
 }

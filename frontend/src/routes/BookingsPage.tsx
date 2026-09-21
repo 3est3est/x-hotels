@@ -6,16 +6,10 @@ import { cancelBooking, useBookings } from '../lib/bookings'
 import { formatDate, formatDateTime } from '../lib/format'
 import type { Booking, BookingStatus } from '../lib/types'
 
-const STATUS_STYLES: Record<BookingStatus, string> = {
-  CONFIRMED: 'bg-emerald-950/60 text-emerald-300 border-emerald-900',
-  CANCELLED: 'bg-neutral-800 text-neutral-400 border-neutral-700',
-  CHECKED_IN: 'bg-sky-950/60 text-sky-300 border-sky-900',
-}
-
-const STATUS_LABELS: Record<BookingStatus, string> = {
-  CONFIRMED: 'Confirmed',
-  CANCELLED: 'Cancelled',
-  CHECKED_IN: 'Checked in',
+const STATUS: Record<BookingStatus, { label: string; style: string }> = {
+  CONFIRMED: { label: 'Confirmed', style: 'bg-emerald-950/60 text-emerald-300 border-emerald-900' },
+  CANCELLED: { label: 'Cancelled', style: 'bg-neutral-800 text-neutral-400 border-neutral-700' },
+  CHECKED_IN: { label: 'Checked in', style: 'bg-sky-950/60 text-sky-300 border-sky-900' },
 }
 
 function BookingCard({ booking, onChanged }: { booking: Booking; onChanged: () => void }) {
@@ -48,9 +42,9 @@ function BookingCard({ booking, onChanged }: { booking: Booking; onChanged: () =
           </p>
         </div>
         <span
-          className={`rounded-full border px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[booking.status]}`}
+          className={`rounded-full border px-2.5 py-1 text-xs font-medium ${STATUS[booking.status].style}`}
         >
-          {STATUS_LABELS[booking.status]}
+          {STATUS[booking.status].label}
         </span>
       </div>
 
@@ -108,7 +102,7 @@ export default function BookingsPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold">My bookings</h1>
-        <p className="mt-1 text-neutral-400">Every stay you have reserved with X Hotels.</p>
+        <p className="mt-1 text-neutral-400">Every stay you have booked with X Hotels.</p>
       </div>
 
       {isPending ? (
