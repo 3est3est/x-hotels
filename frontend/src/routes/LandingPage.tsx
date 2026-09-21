@@ -157,8 +157,8 @@ export default function LandingPage() {
                         <div className="overflow-hidden">
                           <HotelImage
                             sources={[
-                              hotel.images[0]?.url,
                               ...localHotelImage(country.name, regionById.get(hotel.regionId) ?? ''),
+                              hotel.images[0]?.url,
                               mockHotelImage(hotel.id, 600, 400),
                             ]}
                             alt={hotel.name}

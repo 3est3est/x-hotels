@@ -1,4 +1,6 @@
+import { ArrowRight } from 'lucide-react'
 import { useCallback } from 'react'
+import { Link } from 'react-router'
 import { EmptyState, ErrorState, LoadingState } from '../components/StateMessages'
 import { Card } from '../components/ui/card'
 import { api } from '../lib/api'
@@ -49,6 +51,12 @@ export default function ManagementPage() {
           {t.management.title}
         </h1>
         <p className="mt-3 text-stone">{t.management.subtitle}</p>
+        <Link
+          to="/management/bookings"
+          className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 active:scale-[0.98]"
+        >
+          {t.management.allBookings} <ArrowRight size={15} aria-hidden />
+        </Link>
       </div>
 
       {isPending ? (

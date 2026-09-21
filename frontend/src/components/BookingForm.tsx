@@ -2,6 +2,7 @@ import { CalendarDays, Users } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { ErrorState } from './StateMessages'
+import { HotelImage } from './HotelImage'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label, LabelText } from './ui/label'
@@ -9,6 +10,7 @@ import { createBooking } from '../lib/bookings'
 import { useSession } from '../lib/auth'
 import { draftParams, type BookingDraft } from '../lib/bookingDraft'
 import { useT } from '../lib/i18n'
+import { localRoomImage, mockRoomImage } from '../lib/mockImages'
 import type { RoomType } from '../lib/types'
 
 function today(): string {
@@ -23,10 +25,14 @@ export function BookingForm({
   hotelId,
   roomType,
   draft,
+  countryName = '',
+  regionName = '',
 }: {
   hotelId: number
   roomType: RoomType
   draft: BookingDraft
+  countryName?: string
+  regionName?: string
 }) {
   const { data: session, isPending: sessionPending } = useSession()
   const navigate = useNavigate()
@@ -91,6 +97,15 @@ export function BookingForm({
       onSubmit={onSubmit}
       className="flex flex-col gap-3 rounded-2xl border border-hairline bg-paper p-4"
     >
+      <HotelImage
+        sources={[
+          ...localRoomImage(countryName, regionName, roomType.name),
+          roomType.images[0]?.url,
+          mockRoomImage(hotelId, roomType.id, 600, 300),
+        ]}
+        alt={roomType.name}
+        className="aspect-[16/8] w-full rounded-xl object-cover"
+      />
       {error && <ErrorState message={error} />}
       <div className="grid grid-cols-2 gap-3">
         <Label>

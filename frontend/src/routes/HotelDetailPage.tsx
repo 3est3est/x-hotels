@@ -57,8 +57,8 @@ export default function HotelDetailPage() {
       <div className="rise rise-1 grid gap-4 sm:grid-cols-3">
         <HotelImage
           sources={[
-            hero?.url,
             ...localHotelImage(hotel.countryName, hotel.regionName),
+            hero?.url,
             mockHotelImage(hotel.id),
           ]}
           alt={hotel.name}
@@ -70,8 +70,8 @@ export default function HotelDetailPage() {
             <HotelImage
               key={image.url}
               sources={[
-                image.url,
                 ...localHotelImage(hotel.countryName, hotel.regionName),
+                image.url,
                 mockHotelImage(hotel.id, 600, 400),
               ]}
               alt={hotel.name}
@@ -95,8 +95,8 @@ export default function HotelDetailPage() {
               <li key={roomType.id} className="grid gap-5 py-7 sm:grid-cols-5 sm:gap-8">
                 <HotelImage
                   sources={[
-                    roomType.images[0]?.url,
                     ...localRoomImage(hotel.countryName, hotel.regionName, roomType.name),
+                    roomType.images[0]?.url,
                     mockRoomImage(hotel.id, roomType.id),
                   ]}
                   alt={roomType.name}
@@ -123,7 +123,13 @@ export default function HotelDetailPage() {
                     <Users size={15} aria-hidden /> {t.detail.sleeps(roomType.capacity)}
                   </p>
                   <div className="mt-1 max-w-sm">
-                    <BookingForm hotelId={hotel.id} roomType={roomType} draft={draft} />
+                    <BookingForm
+                      hotelId={hotel.id}
+                      roomType={roomType}
+                      draft={draft}
+                      countryName={hotel.countryName}
+                      regionName={hotel.regionName}
+                    />
                   </div>
                 </div>
               </li>

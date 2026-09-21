@@ -47,7 +47,12 @@ export function useCountries(): Resource<Country[]> {
   const load = useCallback(async () => {
     const response = await api.countries.get()
     if (response.error) throw response.error
-    return response.data ?? []
+    // Presentation order only (the API stays alphabetical): home country first.
+    return (response.data ?? []).sort((a, b) => {
+      if (a.name === 'Thailand') return -1
+      if (b.name === 'Thailand') return 1
+      return a.name.localeCompare(b.name)
+    })
   }, [])
   return useResource(load)
 }

@@ -12,6 +12,20 @@ export function useBookings(): Resource<Booking[]> {
   return useResource(load)
 }
 
+export type ManagementBooking = NonNullable<
+  Awaited<ReturnType<typeof api.management.bookings.get>>['data']
+>[number]
+
+/** Every booking in the system with the booking guest. Management only. */
+export function useManagementBookings(): Resource<ManagementBooking[]> {
+  const load = useCallback(async () => {
+    const response = await api.management.bookings.get()
+    if (response.error) throw response.error
+    return response.data ?? []
+  }, [])
+  return useResource(load)
+}
+
 export type CreateBookingInput = {
   hotelId: number
   roomTypeId: number

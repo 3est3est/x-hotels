@@ -43,9 +43,23 @@ export function localRoomImage(
   return [`${base}.jpg`, `${base}.jpeg`]
 }
 
-export function localHotelImage(countryName: string, regionName: string): string[] {
-  const base = `${branchDir(countryName, regionName)}/exterior`
-  return [`${base}.jpg`, `${base}.jpeg`]
+/** Every room type the group sells (seed data). Used to probe branch photos. */
+export const ALL_ROOM_TYPES = ['Deluxe', 'Suite', 'Family']
+
+/**
+ * Hotel cover chain: the branch exterior when the owner supplies it, then the
+ * branch's own room photos (a real photo of the hotel beats the API demo
+ * images and any mock), then the caller appends API + mock fallbacks.
+ * Missing files 404 into the next candidate.
+ */
+export function localHotelImage(
+  countryName: string,
+  regionName: string,
+  roomTypeNames: string[] = ALL_ROOM_TYPES,
+): string[] {
+  const dir = branchDir(countryName, regionName)
+  const rooms = roomTypeNames.flatMap((name) => [`${dir}/${slug(name)}.jpg`, `${dir}/${slug(name)}.jpeg`])
+  return [`${dir}/exterior.jpg`, `${dir}/exterior.jpeg`, ...rooms]
 }
 
 export function mockHotelImage(hotelId: number, width = 1200, height = 800): string {

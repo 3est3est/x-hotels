@@ -161,11 +161,11 @@ export default function CatalogPage() {
                 <div className="overflow-hidden">
                   <HotelImage
                     sources={[
-                      hotel.images[0]?.url,
                       ...localHotelImage(
                         regionGeo.get(hotel.regionId)?.countryName ?? '',
                         regionGeo.get(hotel.regionId)?.regionName ?? '',
                       ),
+                      hotel.images[0]?.url,
                       mockHotelImage(hotel.id, 800, 500),
                     ]}
                     alt={hotel.name}

@@ -167,6 +167,14 @@ const en = {
     mostCountry: 'Most booked country',
     bookingsCount: (n: number) => `${n} ${n === 1 ? 'booking' : 'bookings'}`,
     none: 'No bookings',
+    allBookings: 'View all guest bookings',
+  },
+  managed: {
+    title: 'Guest bookings',
+    subtitle: 'Who booked what, newest first.',
+    loading: 'Loading bookings…',
+    empty: 'No bookings yet.',
+    guest: 'Guest',
   },
   notFound: {
     title: 'Page not found',
@@ -342,6 +350,14 @@ const th: Dict = {
     mostCountry: 'ประเทศที่ถูกจองมากสุด',
     bookingsCount: (n: number) => `${n} การจอง`,
     none: 'ไม่มีการจอง',
+    allBookings: 'ดูรายการจองของแขกทั้งหมด',
+  },
+  managed: {
+    title: 'รายการจองของแขก',
+    subtitle: 'ดูว่าใครจองอะไรไว้ เรียงใหม่ไปเก่า',
+    loading: 'กำลังโหลดรายการจอง…',
+    empty: 'ยังไม่มีการจอง',
+    guest: 'แขกผู้จอง',
   },
   notFound: {
     title: 'ไม่พบหน้านี้',

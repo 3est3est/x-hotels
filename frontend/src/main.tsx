@@ -11,6 +11,7 @@ import CatalogPage from './routes/CatalogPage'
 import HotelDetailPage from './routes/HotelDetailPage'
 import LandingPage from './routes/LandingPage'
 import LoginPage from './routes/LoginPage'
+import ManagedBookingsPage from './routes/ManagedBookingsPage'
 import ManagementPage from './routes/ManagementPage'
 import NotFoundPage from './routes/NotFoundPage'
 import ProfilePage from './routes/ProfilePage'
@@ -36,7 +37,10 @@ const router = createBrowserRouter([
       },
       {
         element: <RequireManagement />,
-        children: [{ path: 'management', element: <ManagementPage /> }],
+        children: [
+          { path: 'management', element: <ManagementPage /> },
+          { path: 'management/bookings', element: <ManagedBookingsPage /> },
+        ],
       },
       { path: '*', element: <NotFoundPage /> },
     ],

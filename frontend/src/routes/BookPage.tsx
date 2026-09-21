@@ -198,8 +198,8 @@ export default function BookPage() {
                 <div className="overflow-hidden">
                   <HotelImage
                     sources={[
-                      row.hotel.images[0]?.url,
                       ...localHotelImage(row.countryName, row.regionName),
+                      row.hotel.images[0]?.url,
                       mockHotelImage(row.hotel.id, 600, 400),
                     ]}
                     alt={row.hotel.name}
