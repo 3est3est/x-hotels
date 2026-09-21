@@ -83,8 +83,10 @@ export default function LandingPage() {
     <div className="flex flex-col gap-14">
       <section className="rise relative left-1/2 w-screen max-w-none -translate-x-1/2 overflow-hidden">
         <HotelImage
-          src="/hotels/thailand/central/suite.jpg"
-          fallback="https://picsum.photos/seed/xhotel-hero/2400/1200"
+          sources={[
+            '/hotels/thailand/central/suite.jpg',
+            'https://picsum.photos/seed/xhotel-hero/2400/1200',
+          ]}
           alt={t.landing.heroAlt}
           eager
           className="absolute inset-0 h-full w-full object-cover"
@@ -154,9 +156,11 @@ export default function LandingPage() {
                       >
                         <div className="overflow-hidden">
                           <HotelImage
-                            src={hotel.images[0]?.url}
-                            fallback={localHotelImage(country.name, regionById.get(hotel.regionId) ?? '')}
-                            finalFallback={mockHotelImage(hotel.id, 600, 400)}
+                            sources={[
+                              hotel.images[0]?.url,
+                              ...localHotelImage(country.name, regionById.get(hotel.regionId) ?? ''),
+                              mockHotelImage(hotel.id, 600, 400),
+                            ]}
                             alt={hotel.name}
                             className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                           />

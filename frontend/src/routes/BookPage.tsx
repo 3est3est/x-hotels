@@ -197,9 +197,11 @@ export default function BookPage() {
               <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-hairline bg-card transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(24_24_27/0.10)]">
                 <div className="overflow-hidden">
                   <HotelImage
-                    src={row.hotel.images[0]?.url}
-                    fallback={localHotelImage(row.countryName, row.regionName)}
-                    finalFallback={mockHotelImage(row.hotel.id, 600, 400)}
+                    sources={[
+                      row.hotel.images[0]?.url,
+                      ...localHotelImage(row.countryName, row.regionName),
+                      mockHotelImage(row.hotel.id, 600, 400),
+                    ]}
                     alt={row.hotel.name}
                     className="aspect-[16/10] w-full object-cover"
                   />

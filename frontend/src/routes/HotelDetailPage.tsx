@@ -56,9 +56,11 @@ export default function HotelDetailPage() {
 
       <div className="rise rise-1 grid gap-4 sm:grid-cols-3">
         <HotelImage
-          src={hero?.url}
-          fallback={localHotelImage(hotel.countryName, hotel.regionName)}
-          finalFallback={mockHotelImage(hotel.id)}
+          sources={[
+            hero?.url,
+            ...localHotelImage(hotel.countryName, hotel.regionName),
+            mockHotelImage(hotel.id),
+          ]}
           alt={hotel.name}
           eager
           className="aspect-[16/10] w-full rounded-2xl object-cover sm:col-span-2 sm:aspect-auto sm:h-full sm:min-h-80"
@@ -67,9 +69,11 @@ export default function HotelDetailPage() {
             {rest.slice(0, 2).map((image) => (
             <HotelImage
               key={image.url}
-              src={image.url}
-              fallback={localHotelImage(hotel.countryName, hotel.regionName)}
-              finalFallback={mockHotelImage(hotel.id, 600, 400)}
+              sources={[
+                image.url,
+                ...localHotelImage(hotel.countryName, hotel.regionName),
+                mockHotelImage(hotel.id, 600, 400),
+              ]}
               alt={hotel.name}
               className="h-40 w-full rounded-2xl object-cover sm:h-full sm:min-h-0"
             />
@@ -90,9 +94,11 @@ export default function HotelDetailPage() {
             {hotel.roomTypes.map((roomType) => (
               <li key={roomType.id} className="grid gap-5 py-7 sm:grid-cols-5 sm:gap-8">
                 <HotelImage
-                  src={roomType.images[0]?.url}
-                  fallback={localRoomImage(hotel.countryName, hotel.regionName, roomType.name)}
-                  finalFallback={mockRoomImage(hotel.id, roomType.id)}
+                  sources={[
+                    roomType.images[0]?.url,
+                    ...localRoomImage(hotel.countryName, hotel.regionName, roomType.name),
+                    mockRoomImage(hotel.id, roomType.id),
+                  ]}
                   alt={roomType.name}
                   className="aspect-[16/10] w-full rounded-2xl object-cover sm:col-span-2"
                 />

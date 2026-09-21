@@ -37,12 +37,15 @@ export function localRoomImage(
   countryName: string,
   regionName: string,
   roomTypeName: string,
-): string {
-  return `${branchDir(countryName, regionName)}/${slug(roomTypeName)}.jpg`
+): string[] {
+  const base = `${branchDir(countryName, regionName)}/${slug(roomTypeName)}`
+  // Both extensions the owner uses. Missing files 404 into the next candidate.
+  return [`${base}.jpg`, `${base}.jpeg`]
 }
 
-export function localHotelImage(countryName: string, regionName: string): string {
-  return `${branchDir(countryName, regionName)}/exterior.jpg`
+export function localHotelImage(countryName: string, regionName: string): string[] {
+  const base = `${branchDir(countryName, regionName)}/exterior`
+  return [`${base}.jpg`, `${base}.jpeg`]
 }
 
 export function mockHotelImage(hotelId: number, width = 1200, height = 800): string {

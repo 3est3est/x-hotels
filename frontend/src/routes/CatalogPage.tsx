@@ -160,12 +160,14 @@ export default function CatalogPage() {
               >
                 <div className="overflow-hidden">
                   <HotelImage
-                    src={hotel.images[0]?.url}
-                    fallback={localHotelImage(
-                      regionGeo.get(hotel.regionId)?.countryName ?? '',
-                      regionGeo.get(hotel.regionId)?.regionName ?? '',
-                    )}
-                    finalFallback={mockHotelImage(hotel.id, 800, 500)}
+                    sources={[
+                      hotel.images[0]?.url,
+                      ...localHotelImage(
+                        regionGeo.get(hotel.regionId)?.countryName ?? '',
+                        regionGeo.get(hotel.regionId)?.regionName ?? '',
+                      ),
+                      mockHotelImage(hotel.id, 800, 500),
+                    ]}
                     alt={hotel.name}
                     className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                   />
