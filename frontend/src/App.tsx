@@ -75,8 +75,8 @@ function SessionNav() {
 function App() {
   const t = useT()
   return (
-    <div className="flex min-h-dvh flex-col bg-paper font-sans text-ink">
-      <header className="border-b border-hairline bg-card">
+    <div className="flex min-h-dvh flex-col overflow-x-clip bg-paper font-sans text-ink">
+      <header className="sticky top-0 z-40 border-b border-hairline bg-card/90 backdrop-blur">
         <div className="mx-auto flex h-17 max-w-6xl items-center justify-between px-4 sm:px-6">
           <NavLink to="/" className="font-display text-[26px] font-semibold tracking-tight">
             X Hotels

@@ -81,29 +81,33 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col gap-14">
-      <section className="rise grid items-center gap-8 lg:grid-cols-2">
-        <div>
-          <h1 className="font-display text-5xl font-semibold tracking-tight text-balance sm:text-6xl">
+      <section className="rise relative left-1/2 w-screen max-w-none -translate-x-1/2 overflow-hidden">
+        <HotelImage
+          fallback="https://picsum.photos/seed/xhotel-hero/2400/1200"
+          alt={t.landing.heroAlt}
+          eager
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10"
+          aria-hidden
+        />
+        <div className="relative flex min-h-[72vh] flex-col justify-end px-4 pt-24 pb-24 sm:px-6 sm:pb-28">
+          <h1 className="max-w-[16ch] font-display text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">
             {t.landing.title}
           </h1>
-          <p className="mt-4 max-w-[48ch] text-lg text-stone">{t.landing.subtitle}</p>
-          <Button asChild variant="dark" className="mt-6">
-            <Link to="/hotels">
-              {t.landing.browseAll} <ArrowRight aria-hidden />
-            </Link>
-          </Button>
-        </div>
-        <div className="overflow-hidden rounded-2xl border border-hairline">
-          <HotelImage
-            fallback="https://picsum.photos/seed/xhotel-hero/1200/800"
-            alt={t.landing.heroAlt}
-            className="aspect-[4/3] w-full object-cover"
-            eager
-          />
+          <p className="mt-4 max-w-[48ch] text-lg text-white/85">{t.landing.subtitle}</p>
+          <div className="mt-6">
+            <Button asChild variant="primary" className="bg-white text-ink hover:bg-zinc-200">
+              <Link to="/hotels">
+                {t.landing.browseAll} <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 
-      <div className="rise rise-1">
+      <div className="rise rise-1 relative z-10 -mt-20 sm:-mt-24">
         <SearchBar />
       </div>
 
