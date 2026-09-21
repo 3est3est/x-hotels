@@ -7,10 +7,13 @@ import { ErrorState, LoadingState, NotFoundState } from '../components/StateMess
 import { readDraft } from '../lib/bookingDraft'
 import { formatDate } from '../lib/format'
 import { useHotelDetail } from '../lib/hooks'
+import { useT } from '../lib/i18n'
 import { mockHotelImage, mockRoomImage } from '../lib/mockImages'
+import { formatPrice, pricePerNight } from '../lib/prices'
 
 export default function HotelDetailPage() {
   const params = useParams()
+  const t = useT()
   const id = Number(params.id)
   const valid = Number.isInteger(id) && id > 0
   const { data: hotel, isPending, error, notFound, reload } = useHotelDetail(id)
@@ -19,15 +22,15 @@ export default function HotelDetailPage() {
 
   if (!valid || notFound) {
     return (
-      <NotFoundState title="Hotel not found">
+      <NotFoundState title={t.detail.notFound}>
         <Link to="/hotels" className="font-medium text-ink underline">
-          Back to all hotels
+          {t.common.backToHotels}
         </Link>
       </NotFoundState>
     )
   }
 
-  if (isPending) return <LoadingState label="Loading hotel…" />
+  if (isPending) return <LoadingState label={t.detail.loading} />
   if (error) return <ErrorState message={error} onRetry={reload} />
   if (!hotel) return null
 
@@ -40,7 +43,7 @@ export default function HotelDetailPage() {
           to="/hotels"
           className="flex items-center gap-1.5 text-sm font-medium text-stone hover:text-ink"
         >
-          <ArrowLeft size={16} aria-hidden /> All hotels
+          <ArrowLeft size={16} aria-hidden /> {t.detail.allHotels}
         </Link>
         <h1 className="mt-4 font-display text-5xl font-semibold tracking-tight text-balance sm:text-6xl">
           {hotel.name}
@@ -77,9 +80,9 @@ export default function HotelDetailPage() {
       </p>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-display text-3xl font-semibold tracking-tight">Room types</h2>
+        <h2 className="font-display text-3xl font-semibold tracking-tight">{t.detail.rooms}</h2>
         {hotel.roomTypes.length === 0 ? (
-          <p className="text-stone">No room types listed for this hotel yet.</p>
+          <p className="text-stone">{t.detail.noRooms}</p>
         ) : (
           <ul className="flex flex-col divide-y divide-hairline">
             {hotel.roomTypes.map((roomType) => (
@@ -92,15 +95,23 @@ export default function HotelDetailPage() {
                 />
                 <div className="flex flex-col gap-3 sm:col-span-3">
                   <div>
-                    <h3 className="font-display text-2xl font-semibold tracking-tight">
-                      {roomType.name}
-                    </h3>
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <h3 className="font-display text-2xl font-semibold tracking-tight">
+                        {roomType.name}
+                      </h3>
+                      <span className="text-lg font-semibold whitespace-nowrap">
+                        {formatPrice(pricePerNight(roomType.name))}{' '}
+                        <span className="text-sm font-normal text-faint">
+                          / {t.common.perNight}
+                        </span>
+                      </span>
+                    </div>
                     <p className="mt-1.5 max-w-[60ch] text-[15px] leading-relaxed text-stone">
                       {roomType.description}
                     </p>
                   </div>
                   <p className="flex items-center gap-1.5 text-sm text-stone">
-                    <Users size={15} aria-hidden /> Sleeps {roomType.capacity}
+                    <Users size={15} aria-hidden /> {t.detail.sleeps(roomType.capacity)}
                   </p>
                   <div className="mt-1 max-w-sm">
                     <BookingForm hotelId={hotel.id} roomType={roomType} draft={draft} />
@@ -114,19 +125,17 @@ export default function HotelDetailPage() {
 
       <section className="flex flex-col gap-5">
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h2 className="font-display text-3xl font-semibold tracking-tight">Guest reviews</h2>
+          <h2 className="font-display text-3xl font-semibold tracking-tight">{t.detail.reviews}</h2>
           {hotel.avgRating !== null ? (
             <span className="flex items-center gap-1.5 text-ink">
               <Star size={17} className="text-gold" fill="currentColor" aria-hidden />
               <span className="font-display text-2xl font-semibold">
                 {hotel.avgRating.toFixed(1)}
               </span>
-              <span className="text-sm text-faint">
-                from {hotel.reviews.length} {hotel.reviews.length === 1 ? 'stay' : 'stays'}
-              </span>
+              <span className="text-sm text-faint">{t.detail.stays(hotel.reviews.length)}</span>
             </span>
           ) : (
-            <span className="text-sm text-faint">No reviews yet</span>
+            <span className="text-sm text-faint">{t.detail.noReviews}</span>
           )}
         </div>
         {hotel.reviews.length > 0 && (
@@ -139,7 +148,7 @@ export default function HotelDetailPage() {
                 <div className="flex items-center justify-between">
                   <span
                     className="flex items-center gap-0.5 text-gold"
-                    aria-label={`${review.rating} out of 5 stars`}
+                    aria-label={t.detail.stars(review.rating)}
                   >
                     {Array.from({ length: review.rating }, (_, i) => (
                       <Star key={i} size={14} fill="currentColor" aria-hidden />
@@ -150,7 +159,7 @@ export default function HotelDetailPage() {
                 {review.message ? (
                   <p className="text-[15px] leading-relaxed">{review.message}</p>
                 ) : (
-                  <p className="text-sm text-faint">Rated without a written review.</p>
+                  <p className="text-sm text-faint">{t.detail.ratedWithout}</p>
                 )}
               </li>
             ))}

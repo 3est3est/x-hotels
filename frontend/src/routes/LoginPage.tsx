@@ -5,12 +5,14 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label, LabelText } from '../components/ui/label'
 import { authClient } from '../lib/auth'
+import { useT } from '../lib/i18n'
 import { safeRedirect } from '../lib/redirect'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const t = useT()
   const [params] = useSearchParams()
-  const redirect = safeRedirect(params.get('redirect'))
+  const redirect = safeRedirect(params.get('redirect'), '/book')
   const registerHref = `/register?redirect=${encodeURIComponent(redirect)}`
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,24 +26,27 @@ export default function LoginPage() {
     const response = await authClient.signIn.email({ email, password })
     setPending(false)
     if (response.error) {
-      setError(response.error.message ?? 'Sign-in failed')
+      setError(response.error.message ?? t.auth.signInFailed)
       return
     }
+    // Refresh the session store before leaving: RequireSession reads it
+    // synchronously, and navigating on a stale null session bounces to login.
+    await authClient.getSession()
     navigate(redirect, { replace: true })
   }
 
   return (
     <div className="rise mx-auto flex w-full max-w-sm flex-col gap-6 py-6">
       <div>
-        <h1 className="font-display text-4xl font-semibold tracking-tight">Welcome back</h1>
-        <p className="mt-2 text-stone">Sign in to manage your bookings.</p>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">{t.auth.loginTitle}</h1>
+        <p className="mt-2 text-stone">{t.auth.loginSub}</p>
       </div>
 
       {error && <ErrorState message={error} />}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Label>
-          <LabelText>Email</LabelText>
+          <LabelText>{t.auth.email}</LabelText>
           <Input
             type="email"
             value={email}
@@ -51,7 +56,7 @@ export default function LoginPage() {
           />
         </Label>
         <Label>
-          <LabelText>Password</LabelText>
+          <LabelText>{t.auth.password}</LabelText>
           <Input
             type="password"
             value={password}
@@ -61,14 +66,14 @@ export default function LoginPage() {
           />
         </Label>
         <Button type="submit" variant="primary" disabled={pending}>
-          {pending ? 'Signing in…' : 'Sign in'}
+          {pending ? t.auth.signingIn : t.auth.signInBtn}
         </Button>
       </form>
 
       <p className="text-sm text-stone">
-        New here?{' '}
+        {t.auth.newHere}{' '}
         <Link to={registerHref} className="font-medium text-ink underline">
-          Create an account
+          {t.auth.createLink}
         </Link>
       </p>
     </div>

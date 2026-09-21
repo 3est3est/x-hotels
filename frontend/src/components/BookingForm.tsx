@@ -8,6 +8,7 @@ import { Label, LabelText } from './ui/label'
 import { createBooking } from '../lib/bookings'
 import { useSession } from '../lib/auth'
 import { draftParams, type BookingDraft } from '../lib/bookingDraft'
+import { useT } from '../lib/i18n'
 import type { RoomType } from '../lib/types'
 
 function today(): string {
@@ -15,9 +16,8 @@ function today(): string {
 }
 
 /**
- * The create-booking form for one Room Type. Unauthenticated or unverified guests
- * are redirected with their intent encoded in the return path, so verifying and
- * coming back needs no re-entry (Spec 0001, story 19).
+ * The create-booking form for one Room Type. Unauthenticated guests register
+ * first, with their intent encoded in the return path (Spec 0002, story 5).
  */
 export function BookingForm({
   hotelId,
@@ -31,6 +31,7 @@ export function BookingForm({
   const { data: session, isPending: sessionPending } = useSession()
   const navigate = useNavigate()
   const location = useLocation()
+  const t = useT()
   const open = draft.roomTypeId === roomType.id
 
   const [guests, setGuests] = useState(draft.guests ?? 1)
@@ -69,7 +70,7 @@ export function BookingForm({
       })
       navigate('/bookings')
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Booking failed')
+      setError(reason instanceof Error ? reason.message : t.bookings.cancelFailed)
     } finally {
       setSubmitting(false)
     }
@@ -79,7 +80,7 @@ export function BookingForm({
     return (
       <Button asChild variant="dark">
         <Link to={`?${draftParams({ roomTypeId: roomType.id, guests, checkIn, nights })}`}>
-          Book this room type
+          {t.bookForm.open}
         </Link>
       </Button>
     )
@@ -95,7 +96,7 @@ export function BookingForm({
         <Label>
           <LabelText>
             <span className="flex items-center gap-1.5">
-              <Users size={14} aria-hidden /> Guests
+              <Users size={14} aria-hidden /> {t.bookForm.guests}
             </span>
           </LabelText>
           <Input
@@ -107,7 +108,7 @@ export function BookingForm({
           />
         </Label>
         <Label>
-          <LabelText>Nights</LabelText>
+          <LabelText>{t.bookForm.nights}</LabelText>
           <Input
             type="number"
             min={1}
@@ -120,7 +121,7 @@ export function BookingForm({
       <Label>
         <LabelText>
           <span className="flex items-center gap-1.5">
-            <CalendarDays size={14} aria-hidden /> Check-in
+            <CalendarDays size={14} aria-hidden /> {t.bookForm.checkIn}
           </span>
         </LabelText>
         <Input
@@ -131,7 +132,7 @@ export function BookingForm({
         />
       </Label>
       <Button type="submit" variant="primary" disabled={submitting || !canEnter}>
-        {submitting ? 'Booking…' : 'Confirm booking'}
+        {submitting ? t.bookForm.submitting : t.bookForm.confirm}
       </Button>
     </form>
   )

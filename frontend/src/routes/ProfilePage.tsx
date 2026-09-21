@@ -5,8 +5,10 @@ import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label, LabelText } from '../components/ui/label'
 import { authClient, useSession } from '../lib/auth'
+import { useT } from '../lib/i18n'
 
 export default function ProfilePage() {
+  const t = useT()
   const { data: session, refetch } = useSession()
   const [name, setName] = useState<string | null>(null)
   const [nameMessage, setNameMessage] = useState<string | null>(null)
@@ -26,11 +28,11 @@ export default function ProfilePage() {
     const response = await authClient.updateUser({ name: currentName })
     setNamePending(false)
     if (response.error) {
-      setNameMessage(response.error.message ?? 'Could not save the name')
+      setNameMessage(response.error.message ?? t.profile.nameFailed)
       return
     }
     await refetch()
-    setNameMessage('Name saved.')
+    setNameMessage(t.profile.nameSaved)
   }
 
   async function onChangePassword(event: FormEvent) {
@@ -41,27 +43,27 @@ export default function ProfilePage() {
     const response = await authClient.changePassword({ currentPassword, newPassword })
     setPasswordPending(false)
     if (response.error) {
-      setPasswordError(response.error.message ?? 'Could not change the password')
+      setPasswordError(response.error.message ?? t.profile.changeFailed)
       return
     }
     setCurrentPassword('')
     setNewPassword('')
-    setPasswordMessage('Password changed. Use the new one next sign-in.')
+    setPasswordMessage(t.profile.changed)
   }
 
   return (
     <div className="rise mx-auto flex w-full max-w-lg flex-col gap-8 py-2">
       <div>
-        <h1 className="font-display text-5xl font-semibold tracking-tight">Profile</h1>
+        <h1 className="font-display text-5xl font-semibold tracking-tight">{t.profile.title}</h1>
         <p className="mt-2 text-stone">{session?.user?.email}</p>
       </div>
 
       <Card className="flex flex-col gap-4 p-5 sm:p-6">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">Display name</h2>
+        <h2 className="font-display text-2xl font-semibold tracking-tight">{t.profile.nameTitle}</h2>
         {nameMessage && <p className="text-sm text-stone">{nameMessage}</p>}
         <form onSubmit={onSaveName} className="flex flex-col gap-3">
           <Label>
-            <LabelText>Name</LabelText>
+            <LabelText>{t.profile.name}</LabelText>
             <Input
               value={currentName}
               onChange={(event) => setName(event.target.value)}
@@ -70,18 +72,18 @@ export default function ProfilePage() {
             />
           </Label>
           <Button type="submit" variant="dark" disabled={namePending} className="self-start">
-            {namePending ? 'Saving…' : 'Save name'}
+            {namePending ? t.profile.saving : t.profile.saveName}
           </Button>
         </form>
       </Card>
 
       <Card className="flex flex-col gap-4 p-5 sm:p-6">
-        <h2 className="font-display text-2xl font-semibold tracking-tight">Password</h2>
+        <h2 className="font-display text-2xl font-semibold tracking-tight">{t.profile.passwordTitle}</h2>
         {passwordMessage && <p className="text-sm text-stone">{passwordMessage}</p>}
         {passwordError && <ErrorState message={passwordError} />}
         <form onSubmit={onChangePassword} className="flex flex-col gap-3">
           <Label>
-            <LabelText>Current password</LabelText>
+            <LabelText>{t.profile.current}</LabelText>
             <Input
               type="password"
               value={currentPassword}
@@ -91,7 +93,7 @@ export default function ProfilePage() {
             />
           </Label>
           <Label>
-            <LabelText>New password</LabelText>
+            <LabelText>{t.profile.new}</LabelText>
             <Input
               type="password"
               value={newPassword}
@@ -102,7 +104,7 @@ export default function ProfilePage() {
             />
           </Label>
           <Button type="submit" variant="dark" disabled={passwordPending} className="self-start">
-            {passwordPending ? 'Changing…' : 'Change password'}
+            {passwordPending ? t.profile.changing : t.profile.change}
           </Button>
         </form>
       </Card>

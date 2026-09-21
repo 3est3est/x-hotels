@@ -1,7 +1,10 @@
 import { AlertCircle, LoaderCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useT } from '../lib/i18n'
 
-export function LoadingState({ label = 'Loading…' }: { label?: string }) {
+export function LoadingState({ label }: { label?: string }) {
+  const t = useT()
+  label ??= t.common.loading
   return (
     <div className="flex items-center gap-2 py-12 text-stone" role="status">
       <LoaderCircle size={18} className="animate-spin" aria-hidden />

@@ -7,6 +7,7 @@ import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label, LabelText } from '../components/ui/label'
 import { useCountries, useHotels } from '../lib/hooks'
+import { useT } from '../lib/i18n'
 import { mockHotelImage } from '../lib/mockImages'
 
 /** Filter state lives in the URL so a filtered view is reloadable and shareable.
@@ -51,6 +52,7 @@ function useFilters() {
 }
 
 export default function CatalogPage() {
+  const t = useT()
   const filters = useFilters()
   const countries = useCountries()
   const hotels = useHotels({
@@ -66,16 +68,16 @@ export default function CatalogPage() {
     <div className="flex flex-col gap-8">
       <div className="rise">
         <h1 className="font-display text-5xl font-semibold tracking-tight text-balance">
-          All hotels
+          {t.hotels.title}
         </h1>
         <p className="mt-3 text-stone">
-          {selectedCountry ? `Browsing ${selectedCountry.name}.` : 'The whole group on one page.'}
+          {selectedCountry ? t.hotels.subtitleCountry(selectedCountry.name) : t.hotels.subtitleAll}
         </p>
       </div>
 
       <Card className="rise rise-1 grid gap-4 p-4 shadow-[0_1px_2px_rgb(24_24_27/0.04)] sm:grid-cols-3 sm:p-5">
         <Label>
-          <LabelText>Country</LabelText>
+          <LabelText>{t.hotels.country}</LabelText>
           <select
             className="rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink focus:border-ink focus:outline-none disabled:opacity-50"
             value={filters.rawCountryId}
@@ -84,7 +86,7 @@ export default function CatalogPage() {
             }}
             disabled={countries.isPending}
           >
-            <option value="">All countries</option>
+            <option value="">{t.hotels.allCountries}</option>
             {countries.data?.map((country) => (
               <option key={country.id} value={country.id}>
                 {country.name}
@@ -94,14 +96,14 @@ export default function CatalogPage() {
         </Label>
 
         <Label>
-          <LabelText>Region</LabelText>
+          <LabelText>{t.hotels.region}</LabelText>
           <select
             className="rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink focus:border-ink focus:outline-none disabled:opacity-50"
             value={filters.rawRegionId}
             onChange={(event) => filters.update({ regionId: event.target.value })}
             disabled={!filters.countryId || regions.length === 0}
           >
-            <option value="">All regions</option>
+            <option value="">{t.hotels.allRegions}</option>
             {regions.map((region) => (
               <option key={region.id} value={region.id}>
                 {region.name}
@@ -111,13 +113,13 @@ export default function CatalogPage() {
         </Label>
 
         <Label>
-          <LabelText>Search</LabelText>
+          <LabelText>{t.hotels.search}</LabelText>
           <div className="relative">
             <Search size={16} className="absolute top-3 left-3 text-faint" aria-hidden />
             <Input
               type="search"
               className="w-full pr-3 pl-9"
-              placeholder="Hotel name"
+              placeholder={t.hotels.hotelName}
               value={filters.rawQ}
               onChange={(event) => filters.update({ q: event.target.value })}
             />
@@ -128,14 +130,14 @@ export default function CatalogPage() {
       {countries.error && <ErrorState message={countries.error} onRetry={countries.reload} />}
 
       {hotels.isPending ? (
-        <LoadingState label="Loading hotels…" />
+        <LoadingState label={t.hotels.loading} />
       ) : hotels.error ? (
         <ErrorState message={hotels.error} onRetry={hotels.reload} />
       ) : hotels.data && hotels.data.length === 0 ? (
         <EmptyState>
-          No hotels match your filters.{' '}
+          {t.hotels.noMatch}{' '}
           <Link to="/hotels" className="font-medium text-ink underline">
-            Clear the search
+            {t.hotels.clearSearch}
           </Link>
         </EmptyState>
       ) : (

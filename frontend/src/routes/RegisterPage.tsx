@@ -5,12 +5,14 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label, LabelText } from '../components/ui/label'
 import { authClient } from '../lib/auth'
+import { useT } from '../lib/i18n'
 import { safeRedirect } from '../lib/redirect'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const t = useT()
   const [params] = useSearchParams()
-  const redirect = safeRedirect(params.get('redirect'))
+  const redirect = safeRedirect(params.get('redirect'), '/book')
   const loginHref = `/login?redirect=${encodeURIComponent(redirect)}`
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -25,24 +27,26 @@ export default function RegisterPage() {
     const response = await authClient.signUp.email({ name, email, password })
     setPending(false)
     if (response.error) {
-      setError(response.error.message ?? 'Registration failed')
+      setError(response.error.message ?? t.auth.registrationFailed)
       return
     }
+    // Same session-store race as sign-in: refresh before navigating on.
+    await authClient.getSession()
     navigate(redirect, { replace: true })
   }
 
   return (
     <div className="rise mx-auto flex w-full max-w-sm flex-col gap-6 py-6">
       <div>
-        <h1 className="font-display text-4xl font-semibold tracking-tight">Create your account</h1>
-        <p className="mt-2 text-stone">Register with your name and email, then book right away.</p>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">{t.auth.createTitle}</h1>
+        <p className="mt-2 text-stone">{t.auth.createSub}</p>
       </div>
 
       {error && <ErrorState message={error} />}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Label>
-          <LabelText>Full name</LabelText>
+          <LabelText>{t.auth.fullName}</LabelText>
           <Input
             value={name}
             onChange={(event) => setName(event.target.value)}
@@ -51,7 +55,7 @@ export default function RegisterPage() {
           />
         </Label>
         <Label>
-          <LabelText>Email</LabelText>
+          <LabelText>{t.auth.email}</LabelText>
           <Input
             type="email"
             value={email}
@@ -61,7 +65,7 @@ export default function RegisterPage() {
           />
         </Label>
         <Label>
-          <LabelText>Password</LabelText>
+          <LabelText>{t.auth.password}</LabelText>
           <Input
             type="password"
             value={password}
@@ -72,14 +76,14 @@ export default function RegisterPage() {
           />
         </Label>
         <Button type="submit" variant="primary" disabled={pending}>
-          {pending ? 'Creating account…' : 'Create account'}
+          {pending ? t.auth.creating : t.auth.create}
         </Button>
       </form>
 
       <p className="text-sm text-stone">
-        Already have an account?{' '}
+        {t.auth.haveAccount}{' '}
         <Link to={loginHref} className="font-medium text-ink underline">
-          Sign in
+          {t.auth.signInLink}
         </Link>
       </p>
     </div>

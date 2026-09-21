@@ -3,7 +3,9 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
 import App from './App.tsx'
+import { LanguageProvider } from './lib/i18n'
 import { RequireManagement, RequireSession } from './lib/routes'
+import BookPage from './routes/BookPage'
 import BookingsPage from './routes/BookingsPage'
 import CatalogPage from './routes/CatalogPage'
 import HotelDetailPage from './routes/HotelDetailPage'
@@ -27,6 +29,7 @@ const router = createBrowserRouter([
       {
         element: <RequireSession />,
         children: [
+          { path: 'book', element: <BookPage /> },
           { path: 'bookings', element: <BookingsPage /> },
           { path: 'profile', element: <ProfilePage /> },
         ],
@@ -42,6 +45,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <LanguageProvider>
+      <RouterProvider router={router} />
+    </LanguageProvider>
   </StrictMode>,
 )

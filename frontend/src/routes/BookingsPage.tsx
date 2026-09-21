@@ -4,12 +4,14 @@ import { Link } from 'react-router'
 import { EmptyState, ErrorState, LoadingState } from '../components/StateMessages'
 import { cancelBooking, useBookings } from '../lib/bookings'
 import { formatDate, formatDateTime } from '../lib/format'
+import { useT } from '../lib/i18n'
 import type { Booking, BookingStatus } from '../lib/types'
+import { Badge } from '../components/ui/badge'
 
-const STATUS: Record<BookingStatus, { label: string; style: string }> = {
-  CONFIRMED: { label: 'Confirmed', style: 'border-olive/30 bg-olive-bg text-olive' },
-  CANCELLED: { label: 'Cancelled', style: 'border-hairline bg-paper text-faint' },
-  CHECKED_IN: { label: 'Checked in', style: 'border-slateblue/30 bg-slateblue-bg text-slateblue' },
+function statusTone(status: BookingStatus): 'olive' | 'neutral' | 'slateblue' {
+  if (status === 'CONFIRMED') return 'olive'
+  if (status === 'CHECKED_IN') return 'slateblue'
+  return 'neutral'
 }
 
 function BookingCard({
@@ -21,9 +23,15 @@ function BookingCard({
   onChanged: () => void
   stagger?: string
 }) {
+  const t = useT()
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const cancellable = booking.status === 'CONFIRMED'
+  const labels: Record<BookingStatus, string> = {
+    CONFIRMED: t.bookings.confirmed,
+    CANCELLED: t.bookings.cancelled,
+    CHECKED_IN: t.bookings.checkedIn,
+  }
 
   async function onCancel() {
     setError(null)
@@ -32,7 +40,7 @@ function BookingCard({
       await cancelBooking(booking.id)
       onChanged()
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Cancellation failed')
+      setError(reason instanceof Error ? reason.message : t.bookings.cancelFailed)
       onChanged()
     } finally {
       setPending(false)
@@ -53,41 +61,37 @@ function BookingCard({
             {booking.regionName}, {booking.countryName}
           </p>
         </div>
-        <span
-          className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${STATUS[booking.status].style}`}
-        >
-          {STATUS[booking.status].label}
-        </span>
+        <Badge tone={statusTone(booking.status)}>{labels[booking.status]}</Badge>
       </div>
 
       <dl className="grid grid-cols-2 gap-4 border-t border-hairline pt-4 text-sm sm:grid-cols-4">
         <div>
-          <dt className="text-xs text-faint">Room type</dt>
+          <dt className="text-xs text-faint">{t.bookings.roomType}</dt>
           <dd className="mt-0.5 font-medium">{booking.roomTypeName}</dd>
         </div>
         <div>
-          <dt className="text-xs text-faint">Guests</dt>
+          <dt className="text-xs text-faint">{t.bookings.guests}</dt>
           <dd className="mt-0.5 flex items-center gap-1 font-medium">
             <Users size={14} aria-hidden /> {booking.numGuests}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-faint">Check-in</dt>
+          <dt className="text-xs text-faint">{t.bookings.checkIn}</dt>
           <dd className="mt-0.5 flex items-center gap-1 font-medium">
             <CalendarDays size={14} aria-hidden /> {formatDate(booking.checkInDate)}
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-faint">Nights</dt>
+          <dt className="text-xs text-faint">{t.bookings.nights}</dt>
           <dd className="mt-0.5 font-medium">
-            {booking.nights} ({formatDate(booking.checkOutDate)} out)
+            {booking.nights} {t.bookings.out(formatDate(booking.checkOutDate))}
           </dd>
         </div>
       </dl>
 
       {booking.checkedInAt && (
         <p className="text-xs text-slateblue">
-          Checked in on {formatDateTime(booking.checkedInAt)}
+          {t.bookings.checkedInOn(formatDateTime(booking.checkedInAt))}
         </p>
       )}
 
@@ -100,7 +104,7 @@ function BookingCard({
           disabled={pending}
           className="flex w-fit items-center gap-1.5 rounded-full border border-hairline px-4 py-1.5 text-sm font-medium transition hover:border-ink active:scale-[0.98] disabled:opacity-50"
         >
-          <X size={15} aria-hidden /> {pending ? 'Cancelling…' : 'Cancel booking'}
+          <X size={15} aria-hidden /> {pending ? t.bookings.cancelling : t.bookings.cancel}
         </button>
       )}
     </li>
@@ -108,26 +112,27 @@ function BookingCard({
 }
 
 export default function BookingsPage() {
+  const t = useT()
   const { data, isPending, error, reload } = useBookings()
 
   return (
     <div className="flex flex-col gap-8">
       <div className="rise">
         <h1 className="font-display text-5xl font-semibold tracking-tight text-balance">
-          My bookings
+          {t.bookings.title}
         </h1>
-        <p className="mt-3 text-stone">Every stay you have booked with X Hotels.</p>
+        <p className="mt-3 text-stone">{t.bookings.subtitle}</p>
       </div>
 
       {isPending ? (
-        <LoadingState label="Loading your bookings…" />
+        <LoadingState label={t.bookings.loading} />
       ) : error ? (
         <ErrorState message={error} onRetry={reload} />
       ) : data && data.length === 0 ? (
         <EmptyState>
-          No bookings yet.{' '}
-          <Link to="/" className="font-medium text-ink underline">
-            Browse hotels
+          {t.bookings.empty}{' '}
+          <Link to="/hotels" className="font-medium text-ink underline">
+            {t.bookings.browse}
           </Link>
         </EmptyState>
       ) : (

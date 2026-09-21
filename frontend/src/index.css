@@ -5,11 +5,16 @@
 @import '@fontsource/outfit/500.css';
 @import '@fontsource/outfit/600.css';
 @import '@fontsource/outfit/700.css';
+@import '@fontsource/noto-sans-thai/400.css';
+@import '@fontsource/noto-sans-thai/500.css';
+@import '@fontsource/noto-sans-thai/600.css';
+@import '@fontsource/noto-serif-thai/500.css';
+@import '@fontsource/noto-serif-thai/600.css';
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'Cormorant Garamond', 'Georgia', serif;
-  --font-sans: 'Outfit', 'system-ui', sans-serif;
+  --font-display: 'Cormorant Garamond', 'Noto Serif Thai', 'Georgia', serif;
+  --font-sans: 'Outfit', 'Noto Sans Thai', 'system-ui', sans-serif;
 
   /* Ink & paper neutrals. Paper is near-white, never cream.
      Ink is off-black, never pure #000. */
