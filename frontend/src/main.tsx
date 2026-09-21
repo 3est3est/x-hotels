@@ -7,6 +7,7 @@ import { RequireSession } from './lib/routes'
 import BookingsPage from './routes/BookingsPage'
 import CatalogPage from './routes/CatalogPage'
 import HotelDetailPage from './routes/HotelDetailPage'
+import LandingPage from './routes/LandingPage'
 import LoginPage from './routes/LoginPage'
 import NotFoundPage from './routes/NotFoundPage'
 import RegisterPage from './routes/RegisterPage'
@@ -17,7 +18,8 @@ const router = createBrowserRouter([
     path: '/',
     element: <App />,
     children: [
-      { index: true, element: <CatalogPage /> },
+      { index: true, element: <LandingPage /> },
+      { path: 'hotels', element: <CatalogPage /> },
       { path: 'hotels/:id', element: <HotelDetailPage /> },
       { path: 'register', element: <RegisterPage /> },
       { path: 'login', element: <LoginPage /> },

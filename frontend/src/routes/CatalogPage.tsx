@@ -1,10 +1,17 @@
 import { Search } from 'lucide-react'
 import { useCallback } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { HotelImage } from '../components/HotelImage'
 import { EmptyState, ErrorState, LoadingState } from '../components/StateMessages'
+import { Card } from '../components/ui/card'
+import { Input } from '../components/ui/input'
+import { Label, LabelText } from '../components/ui/label'
 import { useCountries, useHotels } from '../lib/hooks'
+import { mockHotelImage } from '../lib/mockImages'
 
-/** Filter state lives in the URL so a filtered view is reloadable and shareable. */
+/** Filter state lives in the URL so a filtered view is reloadable and shareable.
+ *  checkIn/nights/guests ride along from the landing search and are carried
+ *  into each detail link so the booking form opens prefilled. */
 function useFilters() {
   const [params, setParams] = useSearchParams()
 
@@ -24,6 +31,13 @@ function useFilters() {
     [params, setParams],
   )
 
+  const carry = new URLSearchParams()
+  for (const key of ['checkIn', 'nights', 'guests']) {
+    const value = params.get(key)
+    if (value) carry.set(key, value)
+  }
+  const carrySuffix = carry.toString()
+
   return {
     countryId: countryId ? Number(countryId) : undefined,
     regionId: regionId ? Number(regionId) : undefined,
@@ -31,12 +45,10 @@ function useFilters() {
     rawCountryId: countryId ?? '',
     rawRegionId: regionId ?? '',
     rawQ: q,
+    carrySuffix,
     update,
   }
 }
-
-const inputClass =
-  'rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink focus:border-ink focus:outline-none disabled:opacity-50'
 
 export default function CatalogPage() {
   const filters = useFilters()
@@ -52,20 +64,20 @@ export default function CatalogPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="rise max-w-xl">
+      <div className="rise">
         <h1 className="font-display text-5xl font-semibold tracking-tight text-balance">
-          Find your hotel
+          All hotels
         </h1>
-        <p className="mt-3 max-w-[52ch] text-stone">
-          Every X Hotels branch, from Bangkok to Tel Aviv. Choose a country to begin.
+        <p className="mt-3 text-stone">
+          {selectedCountry ? `Browsing ${selectedCountry.name}.` : 'The whole group on one page.'}
         </p>
       </div>
 
-      <div className="rise rise-1 grid gap-4 rounded-2xl border border-hairline bg-card p-4 shadow-[0_1px_2px_rgb(24_24_27/0.04)] sm:grid-cols-3 sm:p-5">
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          <span className="text-stone">Country</span>
+      <Card className="rise rise-1 grid gap-4 p-4 shadow-[0_1px_2px_rgb(24_24_27/0.04)] sm:grid-cols-3 sm:p-5">
+        <Label>
+          <LabelText>Country</LabelText>
           <select
-            className={inputClass}
+            className="rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink focus:border-ink focus:outline-none disabled:opacity-50"
             value={filters.rawCountryId}
             onChange={(event) => {
               filters.update({ countryId: event.target.value, regionId: '' })
@@ -79,12 +91,12 @@ export default function CatalogPage() {
               </option>
             ))}
           </select>
-        </label>
+        </Label>
 
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          <span className="text-stone">Region</span>
+        <Label>
+          <LabelText>Region</LabelText>
           <select
-            className={inputClass}
+            className="rounded-xl border border-hairline bg-card px-3 py-2.5 text-ink focus:border-ink focus:outline-none disabled:opacity-50"
             value={filters.rawRegionId}
             onChange={(event) => filters.update({ regionId: event.target.value })}
             disabled={!filters.countryId || regions.length === 0}
@@ -96,22 +108,22 @@ export default function CatalogPage() {
               </option>
             ))}
           </select>
-        </label>
+        </Label>
 
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          <span className="text-stone">Search</span>
+        <Label>
+          <LabelText>Search</LabelText>
           <div className="relative">
             <Search size={16} className="absolute top-3 left-3 text-faint" aria-hidden />
-            <input
+            <Input
               type="search"
-              className={`${inputClass} w-full pr-3 pl-9`}
+              className="w-full pr-3 pl-9"
               placeholder="Hotel name"
               value={filters.rawQ}
               onChange={(event) => filters.update({ q: event.target.value })}
             />
           </div>
-        </label>
-      </div>
+        </Label>
+      </Card>
 
       {countries.error && <ErrorState message={countries.error} onRetry={countries.reload} />}
 
@@ -122,32 +134,29 @@ export default function CatalogPage() {
       ) : hotels.data && hotels.data.length === 0 ? (
         <EmptyState>
           No hotels match your filters.{' '}
-          <Link to="/" className="font-medium text-ink underline">
+          <Link to="/hotels" className="font-medium text-ink underline">
             Clear the search
           </Link>
         </EmptyState>
       ) : (
         <ul className="grid gap-6 sm:grid-cols-2">
           {hotels.data?.map((hotel, index) => (
-            <li key={hotel.id} className={`rise ${index % 3 === 1 ? 'rise-1' : index % 3 === 2 ? 'rise-2' : ''}`}>
+            <li
+              key={hotel.id}
+              className={`rise ${index % 3 === 1 ? 'rise-1' : index % 3 === 2 ? 'rise-2' : ''}`}
+            >
               <Link
-                to={`/hotels/${hotel.id}`}
+                to={`/hotels/${hotel.id}${filters.carrySuffix ? `?${filters.carrySuffix}` : ''}`}
                 className="group block h-full overflow-hidden rounded-2xl border border-hairline bg-card transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(24_24_27/0.10)]"
               >
-                {hotel.images[0] ? (
-                  <div className="overflow-hidden">
-                    <img
-                      src={hotel.images[0].url}
-                      alt={hotel.name}
-                      className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-                      loading="lazy"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex aspect-[16/10] items-center justify-center bg-paper text-faint">
-                    No image
-                  </div>
-                )}
+                <div className="overflow-hidden">
+                  <HotelImage
+                    src={hotel.images[0]?.url}
+                    fallback={mockHotelImage(hotel.id, 800, 500)}
+                    alt={hotel.name}
+                    className="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                  />
+                </div>
                 <div className="p-5">
                   <h2 className="font-display text-[26px] leading-tight font-semibold tracking-tight">
                     {hotel.name}

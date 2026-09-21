@@ -2,6 +2,9 @@ import { CalendarDays, Users } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { ErrorState } from './StateMessages'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Label, LabelText } from './ui/label'
 import { createBooking } from '../lib/bookings'
 import { useSession } from '../lib/auth'
 import { draftParams, type BookingDraft } from '../lib/bookingDraft'
@@ -76,12 +79,11 @@ export function BookingForm({
 
   if (!open) {
     return (
-      <Link
-        to={`?${draftParams({ roomTypeId: roomType.id, guests, checkIn, nights })}`}
-        className="rounded-full border border-hairline bg-card px-4 py-2 text-center text-sm font-medium transition hover:border-ink active:scale-[0.98]"
-      >
-        Book this room type
-      </Link>
+      <Button asChild variant="dark">
+        <Link to={`?${draftParams({ roomTypeId: roomType.id, guests, checkIn, nights })}`}>
+          Book this room type
+        </Link>
+      </Button>
     )
   }
 
@@ -92,50 +94,47 @@ export function BookingForm({
     >
       {error && <ErrorState message={error} />}
       <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          <span className="flex items-center gap-1.5 text-stone">
-            <Users size={14} aria-hidden /> Guests
-          </span>
-          <input
+        <Label>
+          <LabelText>
+            <span className="flex items-center gap-1.5">
+              <Users size={14} aria-hidden /> Guests
+            </span>
+          </LabelText>
+          <Input
             type="number"
             min={1}
             required
-            className="rounded-xl border border-hairline bg-card px-3 py-2 text-ink focus:border-ink focus:outline-none"
             value={guests}
             onChange={(event) => setGuests(Number(event.target.value))}
           />
-        </label>
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          <span className="text-stone">Nights</span>
-          <input
+        </Label>
+        <Label>
+          <LabelText>Nights</LabelText>
+          <Input
             type="number"
             min={1}
             required
-            className="rounded-xl border border-hairline bg-card px-3 py-2 text-ink focus:border-ink focus:outline-none"
             value={nights}
             onChange={(event) => setNights(Number(event.target.value))}
           />
-        </label>
+        </Label>
       </div>
-      <label className="flex flex-col gap-2 text-sm font-medium">
-        <span className="flex items-center gap-1.5 text-stone">
-          <CalendarDays size={14} aria-hidden /> Check-in
-        </span>
-        <input
+      <Label>
+        <LabelText>
+          <span className="flex items-center gap-1.5">
+            <CalendarDays size={14} aria-hidden /> Check-in
+          </span>
+        </LabelText>
+        <Input
           type="date"
           required
-          className="rounded-xl border border-hairline bg-card px-3 py-2 text-ink focus:border-ink focus:outline-none"
           value={checkIn}
           onChange={(event) => setCheckIn(event.target.value)}
         />
-      </label>
-      <button
-        type="submit"
-        disabled={submitting || !canEnter}
-        className="rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700 active:scale-[0.98] disabled:opacity-50"
-      >
+      </Label>
+      <Button type="submit" variant="primary" disabled={submitting || !canEnter}>
         {submitting ? 'Booking…' : 'Confirm booking'}
-      </button>
+      </Button>
     </form>
   )
 }
