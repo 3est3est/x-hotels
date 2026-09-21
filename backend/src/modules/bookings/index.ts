@@ -9,6 +9,7 @@ import {
   cancelBookingResponse,
   getBookingResponse,
   listBookingsResponse,
+  listManagementBookingsResponse,
 } from './model'
 
 export function bookings({ db, auth }: AppContext) {
@@ -36,6 +37,11 @@ export function bookings({ db, auth }: AppContext) {
       response: getBookingResponse,
       detail: { tags: ['bookings'] },
       session: true,
+    })
+    .get('/management/bookings', () => service.listAllBookings(db), {
+      response: listManagementBookingsResponse,
+      detail: { tags: ['management'] },
+      session: 'management',
     })
     .post(
       '/bookings/:id/cancel',

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import {
   createTestApp,
+  managementSession,
   postBooking,
   verifiedUser,
   signUp,
@@ -281,5 +282,54 @@ describe('booking lifecycle', () => {
     expect(keys(createdBody)).toEqual(keys(listed[0]))
     expect(keys(createdBody)).toEqual(keys(cancelled))
     expect(keys(createdBody)).toContain('countryName')
+  })
+})
+
+describe('management booking list', () => {
+  it('shows every booking with the booking guest to management', async () => {
+    const { db, app } = await createTestApp()
+    const fixture = await seedCatalog(db)
+    const alice = await verifiedUser(app, 'alice-list@example.com')
+    const bob = await verifiedUser(app, 'bob-list@example.com')
+    await postBooking(app, alice, validBody(fixture))
+    await postBooking(app, bob, validBody(fixture))
+
+    const manager = await managementSession(app, db)
+    const res = await app.handle(
+      new Request('http://localhost/management/bookings', {
+        headers: { cookie: manager.cookie },
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as {
+      guestEmail: string
+      guestName: string
+      hotelName: string
+      countryName: string
+    }[]
+    expect(body).toHaveLength(2)
+    expect(body.map((row) => row.guestEmail).sort()).toEqual([
+      'alice-list@example.com',
+      'bob-list@example.com',
+    ])
+    expect(body[0].guestName).toBeTruthy()
+    expect(body[0].hotelName).toBeTruthy()
+    expect(body[0].countryName).toBeTruthy()
+  })
+
+  it('refuses guest-role accounts and anonymous callers', async () => {
+    const { app } = await createTestApp()
+    const guest = await verifiedUser(app, 'snoop@example.com')
+
+    const asGuest = await app.handle(
+      new Request('http://localhost/management/bookings', {
+        headers: { cookie: guest.cookie },
+      }),
+    )
+    expect(asGuest.status).toBe(403)
+
+    const anonymous = await app.handle(new Request('http://localhost/management/bookings'))
+    expect(anonymous.status).toBe(401)
   })
 })

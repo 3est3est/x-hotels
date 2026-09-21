@@ -46,6 +46,18 @@ export const createBookingBody = t.Object({
 export const createBookingResponse = { 201: bookingRepresentation, 400: errorResponse }
 export const listBookingsResponse = { 200: t.Array(bookingRepresentation) }
 export const getBookingResponse = { 200: bookingRepresentation, 404: errorResponse }
+
+/**
+ * The management booking row: the single representation plus who booked it,
+ * so Hotel Management sees which Guest each Booking belongs to.
+ */
+export const managementBookingRepresentation = t.Object({
+  ...bookingRepresentation.properties,
+  guestName: t.String(),
+  guestEmail: t.String(),
+})
+
+export const listManagementBookingsResponse = { 200: t.Array(managementBookingRepresentation) }
 export const cancelBookingResponse = {
   200: bookingRepresentation,
   404: errorResponse,

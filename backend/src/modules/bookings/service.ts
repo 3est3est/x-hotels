@@ -1,7 +1,14 @@
 import { and, desc, eq } from 'drizzle-orm'
 import { status } from 'elysia'
 import type { Db } from '../../db/types'
-import { bookings as bookingsTable, countries, hotels, regions, roomTypes } from '../../db/schema'
+import {
+  bookings as bookingsTable,
+  countries,
+  hotels,
+  regions,
+  roomTypes,
+  user as usersTable,
+} from '../../db/schema'
 import { applyBookingTransition, loadBooking } from './state'
 
 function checkOutDate(checkInDate: string, nights: number): string {
@@ -89,6 +96,21 @@ export async function createBooking(
 export async function listBookings(db: Db, userId: string) {
   const rows = await bookingsJoined(db)
     .where(eq(bookingsTable.userId, userId))
+    .orderBy(desc(bookingsTable.id))
+
+  return rows.map(toRepresentation)
+}
+
+/** Every booking in the system with the booking Guest's identity, newest first. */
+export async function listAllBookings(db: Db) {
+  const rows = await db
+    .select({ ...bookingColumns, guestName: usersTable.name, guestEmail: usersTable.email })
+    .from(bookingsTable)
+    .innerJoin(hotels, eq(hotels.id, bookingsTable.hotelId))
+    .innerJoin(regions, eq(regions.id, hotels.regionId))
+    .innerJoin(countries, eq(countries.id, regions.countryId))
+    .innerJoin(roomTypes, eq(roomTypes.id, bookingsTable.roomTypeId))
+    .innerJoin(usersTable, eq(usersTable.id, bookingsTable.userId))
     .orderBy(desc(bookingsTable.id))
 
   return rows.map(toRepresentation)
