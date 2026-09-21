@@ -100,7 +100,6 @@ export function BookingForm({
       <HotelImage
         sources={[
           ...localRoomImage(countryName, regionName, roomType.name),
-          roomType.images[0]?.url,
           mockRoomImage(hotelId, roomType.id, 600, 300),
         ]}
         alt={roomType.name}

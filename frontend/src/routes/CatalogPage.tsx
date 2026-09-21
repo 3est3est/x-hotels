@@ -165,7 +165,6 @@ export default function CatalogPage() {
                         regionGeo.get(hotel.regionId)?.countryName ?? '',
                         regionGeo.get(hotel.regionId)?.regionName ?? '',
                       ),
-                      hotel.images[0]?.url,
                       mockHotelImage(hotel.id, 800, 500),
                     ]}
                     alt={hotel.name}

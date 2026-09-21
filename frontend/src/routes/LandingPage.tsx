@@ -158,7 +158,6 @@ export default function LandingPage() {
                           <HotelImage
                             sources={[
                               ...localHotelImage(country.name, regionById.get(hotel.regionId) ?? ''),
-                              hotel.images[0]?.url,
                               mockHotelImage(hotel.id, 600, 400),
                             ]}
                             alt={hotel.name}

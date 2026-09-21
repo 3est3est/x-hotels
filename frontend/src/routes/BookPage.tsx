@@ -199,7 +199,6 @@ export default function BookPage() {
                   <HotelImage
                     sources={[
                       ...localHotelImage(row.countryName, row.regionName),
-                      row.hotel.images[0]?.url,
                       mockHotelImage(row.hotel.id, 600, 400),
                     ]}
                     alt={row.hotel.name}

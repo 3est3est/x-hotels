@@ -34,8 +34,6 @@ export default function HotelDetailPage() {
   if (error) return <ErrorState message={error} onRetry={reload} />
   if (!hotel) return null
 
-  const [hero, ...rest] = hotel.images
-
   return (
     <div className="flex flex-col gap-12">
       <div className="rise">
@@ -54,31 +52,16 @@ export default function HotelDetailPage() {
         </p>
       </div>
 
-      <div className="rise rise-1 grid gap-4 sm:grid-cols-3">
+      <div className="rise rise-1 overflow-hidden rounded-2xl">
         <HotelImage
           sources={[
             ...localHotelImage(hotel.countryName, hotel.regionName),
-            hero?.url,
-            mockHotelImage(hotel.id),
+            mockHotelImage(hotel.id, 1600, 800),
           ]}
           alt={hotel.name}
           eager
-          className="aspect-[16/10] w-full rounded-2xl object-cover sm:col-span-2 sm:aspect-auto sm:h-full sm:min-h-80"
+          className="aspect-[21/9] w-full object-cover"
         />
-          <div className="grid grid-rows-2 gap-4">
-            {rest.slice(0, 2).map((image) => (
-            <HotelImage
-              key={image.url}
-              sources={[
-                ...localHotelImage(hotel.countryName, hotel.regionName),
-                image.url,
-                mockHotelImage(hotel.id, 600, 400),
-              ]}
-              alt={hotel.name}
-              className="h-40 w-full rounded-2xl object-cover sm:h-full sm:min-h-0"
-            />
-          ))}
-        </div>
       </div>
 
       <p className="rise rise-2 max-w-[65ch] text-lg leading-relaxed text-stone">
@@ -96,7 +79,6 @@ export default function HotelDetailPage() {
                 <HotelImage
                   sources={[
                     ...localRoomImage(hotel.countryName, hotel.regionName, roomType.name),
-                    roomType.images[0]?.url,
                     mockRoomImage(hotel.id, roomType.id),
                   ]}
                   alt={roomType.name}
