@@ -10,9 +10,12 @@ import type { Auth } from '../../../backend/src/modules/auth'
  * the backend in development, the Cloudflare Pages `_redirects` proxy does it
  * in production, so the session cookie is always first-party. Session state is
  * read with `authClient.useSession()`.
+ *
+ * better-auth rejects a relative `baseURL`, so it is pinned to the page's own
+ * origin — same-origin by construction in every environment.
  */
 export const authClient = createAuthClient({
-  baseURL: '/api/auth',
+  baseURL: `${window.location.origin}/api/auth`,
   plugins: [inferAdditionalFields<Auth>()],
 })
 
